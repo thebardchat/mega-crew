@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEGA CREW — Redirecting...</title>
+  <style>
+    body {
+      background: #0a0a0a;
+      color: #00ffff;
+      font-family: 'Share Tech Mono', monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .logo { font-size: 2rem; letter-spacing: 0.2em; }
+    .msg  { font-size: 0.8rem; color: #4a6060; letter-spacing: 0.15em; }
+  </style>
+</head>
+<body>
+  <div class="logo">MEGA CREW</div>
+  <div class="msg">CONNECTING TO THE PI...</div>
+  <script>
+    // Redirect to the Pi claim page, preserving ?character= param
+    const params = window.location.search;
+    window.location.replace(
+      "https://shanebrain-1.tail202c1a.ts.net/claim" + params
+    );
+  </script>
+</body>
+</html>
