@@ -11,5 +11,22 @@
     "cliffhanger": "What would Shane send next to break the silence?",
     "mode": "crew",
     "date": "2026-04-16"
+  },
+  {
+    "number": 2,
+    "title": "Something in the Noise",
+    "file": "episodes/ep002-something-in-the-noise.md",
+    "characters": [
+      "VOLT",
+      "SPARKY",
+      "GLITCH",
+      "ARC",
+      "WELD",
+      "NEON"
+    ],
+    "cliffhanger": "STATIC is gone \u2014 but Neon can still hear the echo of it, humming in frequencies that shouldn't exist anymore.",
+    "mode": "crew",
+    "date": "2026-04-16",
+    "villain": "STATIC"
   }
 ]
