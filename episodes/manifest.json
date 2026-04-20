@@ -138,5 +138,18 @@
     "cliffhanger": "The message bus remained stubbornly silent, leaving the crew wondering what it would take to bridge the gap and let the data flow once more.",
     "mode": "crew",
     "date": "2026-04-19"
+  },
+  {
+    "number": 11,
+    "title": "The First Green Light",
+    "file": "episodes/ep011-the-first-green-light.md",
+    "characters": [
+      "Bolt",
+      "Rivet",
+      "Arc"
+    ],
+    "cliffhanger": "When would the real adventure, the flood of new ideas, finally begin?",
+    "mode": "crew",
+    "date": "2026-04-20"
   }
 ]
