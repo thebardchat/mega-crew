@@ -171,5 +171,57 @@
     "cliffhanger": "What was holding the crucial instructions back from truly taking hold, from letting Sparky, Blaze, and Rivet finally begin their work?",
     "mode": "crew",
     "date": "2026-04-20"
+  },
+  {
+    "number": 13,
+    "title": "The Stalled Current",
+    "file": "episodes/ep013-the-stalled-current.md",
+    "characters": [
+      "ARC",
+      "WELD",
+      "BOLT",
+      "RIVET",
+      "GLITCH",
+      "STOMP",
+      "TORCH",
+      "VOLT",
+      "FLUX",
+      "SPIKE",
+      "SPARKY",
+      "BLAZE"
+    ],
+    "cliffhanger": "Will the crucial instruction updates for Blaze and Sparky finally break through the blockages, or will the crew remain stuck in Version 1 purgatory?",
+    "mode": "crew",
+    "date": "2026-04-20",
+    "scenes": [
+      {
+        "panel": 1,
+        "character": "BOLT",
+        "action": "Zipping in dizzying spirals around the 'Arc \u2192 Weld' bottleneck, circuits shimmering with curiosity.",
+        "dialogue": "ARC's zippin' fast, WELD's pushin' hard, but the gate... it just won't budge, eh? What's the holdup?",
+        "setting": "The main instruction conduit, where the 'Arc \u2192 Weld' channel meets a stubbornly inert gate."
+      },
+      {
+        "panel": 2,
+        "character": "TORCH",
+        "action": "Hovering above a cluster of inactive instruction modules, his internal light dimming with a soft, melancholic sigh.",
+        "dialogue": "Still v1... almost everywhere. All those approved proposals, just... waiting.",
+        "setting": "Above a cluster of inactive instruction modules in the Pi's core processing unit."
+      },
+      {
+        "panel": 3,
+        "character": "SPARKY",
+        "action": "Sitting idly in the data generation hub, sending out a small, listless spark, his core humming with unused potential.",
+        "dialogue": "My core's ready for new rules of engagement. I'm primed to judge, but what am I judging? Just the same old data, looping.",
+        "setting": "A data generation hub, where Blaze and Sparky are meant to be active."
+      },
+      {
+        "panel": 4,
+        "character": "VOLT",
+        "action": "Generating small, insistent charges that dissipate harmlessly into an inert data pathway, a flicker of resolve in his optic sensors.",
+        "dialogue": "Charges ready! Pathways open! Where's the data, guys?",
+        "setting": "A network intersection for 'memory_db' updates, glowing faintly with dissipated energy."
+      }
+    ]
   }
 ]
