@@ -1,5 +1,9 @@
 # MEGA Crew
 
+> **Try Claude free for 2 weeks** — the AI powering this ecosystem. [Start your free trial →](https://claude.ai/referral/4fAMYN9Ing)
+
+![social card](assets/social-card.jpg)
+
 > **Try Claude free for 2 weeks** — the AI behind this entire ecosystem. [Start your free trial →](https://claude.ai/referral/4fAMYN9Ing)
 
 ---
