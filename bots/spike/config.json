@@ -1,0 +1,11 @@
+{
+  "role": "IQ benchmarker",
+  "zone": "rightFoot",
+  "interval": 21600,
+  "test_count": 10,
+  "bot": "spike",
+  "version": 1,
+  "created": "2026-04-10",
+  "evolution_level": 0,
+  "last_evolved": null
+}

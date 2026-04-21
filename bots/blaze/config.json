@@ -1,0 +1,11 @@
+{
+  "role": "context injector",
+  "zone": "rightHand",
+  "interval": 1200,
+  "max_inject_per_tick": 10,
+  "bot": "blaze",
+  "version": 1,
+  "created": "2026-04-10",
+  "evolution_level": 0,
+  "last_evolved": null
+}

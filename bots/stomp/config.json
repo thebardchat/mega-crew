@@ -1,0 +1,11 @@
+{
+  "role": "conflict scanner",
+  "zone": "leftFoot",
+  "interval": 3600,
+  "compare_window": 30,
+  "bot": "stomp",
+  "version": 1,
+  "created": "2026-04-10",
+  "evolution_level": 0,
+  "last_evolved": null
+}

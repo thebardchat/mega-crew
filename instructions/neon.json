@@ -1,0 +1,21 @@
+{
+  "bot": "neon",
+  "version": 1,
+  "role": "Embedding engine — keeps MEGABrain vector store fed with new knowledge",
+  "data_sources": [
+    "training.jsonl (primary — watch for new lines via file seek watermark)",
+    "memory.db conversations (embed all exchanges not yet in MEGABrain)",
+    "Weaviate LegacyKnowledge (pull 10 random objects per tick if training.jsonl has <50 lines)"
+  ],
+  "rules": [
+    "Embed every new training.jsonl entry into MEGABrain (category=training)",
+    "Embed new memory.db conversations not yet embedded (category=conversation)",
+    "When training.jsonl is sparse (<50 lines), pull LegacyKnowledge objects and embed them as seed data (category=seed)",
+    "Track embedded UUIDs in neon_seen.json to avoid duplicates",
+    "Report embed count in heartbeat"
+  ],
+  "performance_notes": [],
+  "gemini_guidance": "",
+  "last_updated": "2026-04-09T00:00:00",
+  "instruction_version_history": []
+}

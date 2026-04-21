@@ -1,0 +1,21 @@
+{
+  "bot": "flux",
+  "version": 1,
+  "role": "Health monitor — ensures all 16 bots are alive and productive",
+  "data_sources": [
+    "mega/status/*.json (all bot status files)",
+    "mega/logs/*.log (recent error lines)",
+    "mega/bot_status.json (aggregated view)"
+  ],
+  "rules": [
+    "Check each bot's last_run timestamp against its expected interval * 2",
+    "If overdue: log warning and attempt subprocess restart",
+    "If a bot has been in ERROR state for >2 ticks: alert via bus to crank (for dashboard display)",
+    "Track restart count per bot — if >3 restarts in 1 hour, flag as critically unstable",
+    "Report MEGA_HEALTH score (0-100) based on % of bots active with no errors"
+  ],
+  "performance_notes": [],
+  "gemini_guidance": "",
+  "last_updated": "2026-04-09T00:00:00",
+  "instruction_version_history": []
+}

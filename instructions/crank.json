@@ -1,0 +1,23 @@
+{
+  "bot": "crank",
+  "version": 1,
+  "role": "Scheduler and aggregator — builds bot_status.json every 60 seconds for dashboard",
+  "data_sources": [
+    "mega/status/*.json (all 16 bot status files)",
+    "mega/status/arc_stats.json",
+    "mega/status/spike_iq.json",
+    "mega/instructions/*.json (to report instruction versions)"
+  ],
+  "rules": [
+    "Aggregate all status files into bot_status.json every 60 seconds",
+    "Include instruction_version for each bot (read from instructions/<botname>.json)",
+    "Compute MEGA_IQ from spike_iq.json (or last known value if spike hasn't run yet)",
+    "Compute zone_activity: count of bots per zone that ran in last 10 minutes",
+    "Include training_count (line count of training.jsonl) and memory_count (row count of memory.db)",
+    "Include gemini_last_guidance: last Gemini strategic note from gemini_strategist status"
+  ],
+  "performance_notes": [],
+  "gemini_guidance": "",
+  "last_updated": "2026-04-09T00:00:00",
+  "instruction_version_history": []
+}

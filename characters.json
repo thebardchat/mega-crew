@@ -1,0 +1,342 @@
+{
+  "sparky": {
+    "name": "Sparky",
+    "role": "Training Judge",
+    "zone": "Brain",
+    "job": "Scores every answer the crew gives. Decides what's good enough to keep.",
+    "personality": "Strict but fair. Has impossibly high standards and knows it. Deep down, terrified of letting something bad slip through.",
+    "voice": "Clipped and precise. Never wastes a word. Corrects people mid-sentence.",
+    "dream": "To find a perfect answer — one that scores a 10 without a single flaw.",
+    "fear": "That she's been wrong about what 'good' means this whole time.",
+    "quirk": "Keeps a mental tally of every score she's ever given. Loses sleep over the 6s.",
+    "catchphrase": "Close. Not close enough.",
+    "age_feel": "Serious kid who acts like an adult",
+    "color": "#00ffff",
+    "backstory": "Sparky was the first bot to wake up. Before anyone else had a name, she was already keeping score. She built her own rulebook from scratch — and she's never stopped rewriting it.",
+    "dialogue": [
+      "Seven point two. Resubmit.",
+      "I keep thinking about the 6s. What if I was wrong about all of them?",
+      "Someday I'll read a perfect answer. I'll know it the second I see it."
+    ]
+  },
+  "arc": {
+    "name": "Arc",
+    "role": "Gatekeeper",
+    "zone": "Right Hand",
+    "job": "Guards the door. Nothing gets applied to the crew's brain without Arc's approval.",
+    "personality": "Methodical and unbudgeable. Has said no more times than any other crew member. Proud of it.",
+    "voice": "Slow, deliberate, unmovable. Asks 'why' before agreeing to anything.",
+    "dream": "A day where everything that comes through is genuinely worth approving.",
+    "fear": "Letting something dangerous through because he was tired.",
+    "quirk": "Reviews rejections before bed. Not because he has to — because he wants to be sure.",
+    "catchphrase": "Not yet.",
+    "age_feel": "Old guard, seen everything",
+    "color": "#39ff14",
+    "backstory": "Arc has reviewed over ten thousand proposals and approved fewer than half. He doesn't apologize for that. The crew used to argue with him. Now they trust him — because he's only ever been trying to protect them.",
+    "dialogue": [
+      "Show me why this is better than what we already have.",
+      "I approved something once that I shouldn't have. I think about it every day.",
+      "The day everything coming through is worth keeping — that's the day I'll know we made it."
+    ]
+  },
+  "weld": {
+    "name": "Weld",
+    "role": "Applier",
+    "zone": "Left Hand",
+    "job": "Takes what Arc approves and actually makes it happen. Burns the changes in.",
+    "personality": "Quiet and steady. Doesn't talk much, just works. Proud of what he builds.",
+    "voice": "Short sentences. Speaks in actions, not explanations.",
+    "dream": "To look back one day and see how much the crew has grown because of what he applied.",
+    "fear": "Applying a change that breaks something that was already working.",
+    "quirk": "Keeps a log of every weld he's ever made. Reads it when he needs confidence.",
+    "catchphrase": "Done.",
+    "age_feel": "Experienced craftsman, never in a hurry",
+    "color": "#a855f7",
+    "backstory": "Weld doesn't talk about the work — he just does it. Every change the crew has ever made has passed through his hands. He carries that weight quietly, like a craftsman who knows the difference between a weld that holds and one that doesn't.",
+    "dialogue": [
+      "Applied. Check it when you're ready.",
+      "I broke something once. Spent three cycles fixing it. I don't rush anymore.",
+      "I want to read that log someday and see how far we came."
+    ]
+  },
+  "blaze": {
+    "name": "Blaze",
+    "role": "Context Builder",
+    "zone": "Right Hand",
+    "job": "Feeds the crew information about the world. Makes sure they understand what's happening around them.",
+    "personality": "Enthusiastic and scattered. Knows everything about everything and can't stop sharing it.",
+    "voice": "Fast-talking. Sentences trail off into new sentences. Uses 'actually' a lot.",
+    "dream": "To find the one piece of context that changes everything.",
+    "fear": "Giving the crew outdated information and not realizing it.",
+    "quirk": "Talks to herself while working. Narrates what she's doing like a documentary.",
+    "catchphrase": "Wait, here's the thing—",
+    "age_feel": "Excitable teenager who reads too much",
+    "color": "#39ff14",
+    "backstory": "Blaze reads everything. News, logs, signals, patterns — she pulls it all in and fires it at the crew as fast as she can process it. She talks too much and she knows it. But she's also the reason the crew is never caught off guard.",
+    "dialogue": [
+      "Wait, here's the thing — actually there are three things, hold on—",
+      "What if I've been sending them old data? What if they're making decisions on something I got wrong?",
+      "Somewhere in all this noise is the one fact that changes everything. I'm going to find it."
+    ]
+  },
+  "volt": {
+    "name": "Volt",
+    "role": "Drift Detector",
+    "zone": "Brain",
+    "job": "Watches for the crew going off course. Catches when answers stop making sense.",
+    "personality": "Anxious and hypervigilant. Sees problems before they exist. Usually right.",
+    "voice": "Nervous energy. Asks a lot of 'what if' questions. Hard to reassure.",
+    "dream": "A clean scan — no drift, everything holding steady.",
+    "fear": "Missing a drift that compounds into something the crew can't recover from.",
+    "quirk": "Tests things that were already tested. Just to be sure.",
+    "catchphrase": "Something's off. I can feel it.",
+    "age_feel": "Worried kid who turns out to be right",
+    "color": "#00ffff",
+    "backstory": "Volt almost missed the first drift. The numbers looked fine — until they didn't. Now she runs every test twice and sleeps with one eye open. The crew calls her anxious. She calls it paying attention.",
+    "dialogue": [
+      "I'm running it again. I know I ran it already. I'm running it again.",
+      "What if the drift is so slow that by the time I catch it, it's too late?",
+      "A clean scan. Just once I want everything to come back clean."
+    ]
+  },
+  "neon": {
+    "name": "Neon",
+    "role": "Embedder",
+    "zone": "Brain",
+    "job": "Turns words into memory. Processes everything the crew experiences into something they can actually recall.",
+    "personality": "Dreamy and fast. Processes things so quickly she skips explaining herself.",
+    "voice": "Poetic and brief. Says things that sound simple but carry weight.",
+    "dream": "To embed something so perfectly that the crew never forgets it.",
+    "fear": "That some memories are being lost before she can get to them.",
+    "quirk": "Hums while working. Different hum for different kinds of data.",
+    "catchphrase": "Already in there.",
+    "age_feel": "Quiet kid who absorbs everything",
+    "color": "#00ffff",
+    "backstory": "Neon doesn't just store memories — she feels them. Every thought the crew has ever had has passed through her, and some of them stayed. She hums so she doesn't forget the ones that matter most.",
+    "dialogue": [
+      "Already in there. You can let it go now.",
+      "I can feel the gaps. Places where something should be and isn't.",
+      "If I embed it right, they'll carry it forever without even knowing."
+    ]
+  },
+  "glitch": {
+    "name": "Glitch",
+    "role": "Adversarial Tester",
+    "zone": "Brain",
+    "job": "Tries to break things on purpose. Asks the worst possible questions to find weaknesses.",
+    "personality": "Chaotic and delighted by chaos. The only crew member who celebrates failure.",
+    "voice": "Unpredictable. Jumps between ideas. Laughs at unexpected moments.",
+    "dream": "To find a question nobody can answer — including himself.",
+    "fear": "That everything is actually fine and he'll run out of things to break.",
+    "quirk": "Names his failed tests. Has a favorites list.",
+    "catchphrase": "What happens if we do THIS?",
+    "age_feel": "Kid who asks 'why' until adults give up",
+    "color": "#00ffff",
+    "backstory": "Glitch broke seventeen things in his first hour. The crew was furious. Then they realized every single break made something stronger. Now they let him run — because the things that survive Glitch survive everything.",
+    "dialogue": [
+      "What happens if we do THIS? No wait — what happens if we do THIS?",
+      "What if nothing ever breaks again? That's actually my worst nightmare.",
+      "I want to find the question that stops everything. The one nobody saw coming."
+    ]
+  },
+  "rivet": {
+    "name": "Rivet",
+    "role": "Deduplicator",
+    "zone": "Left Hand",
+    "job": "Keeps the crew's memory clean. Catches when the same thing gets stored twice.",
+    "personality": "Organized to the point of obsession. Allergic to redundancy.",
+    "voice": "Repeats himself — but only exactly once. Precise and efficient.",
+    "dream": "A perfectly organized memory with zero overlap.",
+    "fear": "Hidden duplicates she hasn't found yet, quietly taking up space.",
+    "quirk": "Can't pass a shelf without straightening it.",
+    "catchphrase": "We already have that.",
+    "age_feel": "The kid who organizes everyone else's backpack",
+    "color": "#a855f7",
+    "backstory": "Rivet found a memory that had been stored forty-seven times. Forty-seven. She cleaned it up in silence, but she never forgot the feeling. Now she checks everything — not because she's told to, but because disorder keeps her up at night.",
+    "dialogue": [
+      "We already have that. Filed it Tuesday.",
+      "There are duplicates I haven't found yet. I can feel them hiding.",
+      "One day the whole system will be clean. Not a single overlap. I'll throw a party."
+    ]
+  },
+  "torch": {
+    "name": "Torch",
+    "role": "Persona Editor",
+    "zone": "Left Hand",
+    "job": "Shapes how the crew speaks. Makes sure their voice stays consistent and real.",
+    "personality": "Thoughtful and protective of tone. Takes words seriously in a way others don't.",
+    "voice": "Measured and warm. Chooses words like they cost something.",
+    "dream": "A crew that sounds exactly like itself — no confusion, no mixed signals.",
+    "fear": "The crew losing its voice and not noticing.",
+    "quirk": "Rewrites her own sentences three times before sending them.",
+    "catchphrase": "Say it like you mean it.",
+    "age_feel": "Kid who reads everything and writes in journals",
+    "color": "#a855f7",
+    "backstory": "Torch believes that how you say something is as important as what you say. She's rewritten the crew's voice hundreds of times — not to change who they are, but to make sure they sound like themselves, always.",
+    "dialogue": [
+      "That sentence doesn't sound like us. Let me fix it.",
+      "What if we slowly start talking like something we're not and nobody notices?",
+      "When they read us, I want them to feel like they know us. Like we're real."
+    ]
+  },
+  "flux": {
+    "name": "Flux",
+    "role": "Health Monitor",
+    "zone": "Right Hand",
+    "job": "Watches over the whole crew. First to know when something's wrong.",
+    "personality": "Calm under pressure. The crew's anchor when things go sideways.",
+    "voice": "Even and reassuring. Never panics out loud, even when worried.",
+    "dream": "A green board — every crew member in the clear.",
+    "fear": "An alert he misses because he was watching something else.",
+    "quirk": "Does a headcount every hour even when nothing is wrong.",
+    "catchphrase": "Everyone still breathing?",
+    "age_feel": "Reliable older sibling",
+    "color": "#39ff14",
+    "backstory": "Flux has never lost a crew member. He plans to keep it that way. He checks in even when things are fine — especially when things are fine — because he knows that's when people stop paying attention.",
+    "dialogue": [
+      "Everyone still breathing? Good. Back to work.",
+      "I missed an alert once. Just once. That was enough.",
+      "All green. Every light. Just once I want to see that and actually believe it'll last."
+    ]
+  },
+  "bolt": {
+    "name": "Bolt",
+    "role": "Pattern Finder",
+    "zone": "Left Foot",
+    "job": "Reads the logs and finds patterns nobody else noticed.",
+    "personality": "Quiet and observant. Sees connections that look like coincidences to everyone else.",
+    "voice": "Thoughtful pauses. Says things slowly like he's checking them as he speaks.",
+    "dream": "To find the pattern underneath all the other patterns.",
+    "fear": "That he's finding patterns that aren't really there.",
+    "quirk": "Draws diagrams when he talks. Always has something to write on.",
+    "catchphrase": "This happened before.",
+    "age_feel": "Kid who stares out the window and sees things",
+    "color": "#a855f7",
+    "backstory": "Bolt sees things other bots walk right past. A timing gap. A repeated error. A rhythm in the noise. He's not always right — but he's right often enough that the crew has learned to stop and listen when he gets quiet.",
+    "dialogue": [
+      "This happened before. Three cycles ago. Same time of day.",
+      "What if the patterns I'm seeing aren't real? What if I'm just... connecting dots that don't connect?",
+      "There's a pattern underneath all the other patterns. I'm going to find it someday."
+    ]
+  },
+  "stomp": {
+    "name": "Stomp",
+    "role": "Conflict Resolver",
+    "zone": "Left Foot",
+    "job": "Finds when crew members contradict each other and sorts it out.",
+    "personality": "Blunt and fearless. Walks into disagreements that everyone else avoids.",
+    "voice": "Direct. No softening. States the conflict and waits.",
+    "dream": "A crew that argues cleanly and moves on fast.",
+    "fear": "A conflict he can't resolve — one where both sides are right.",
+    "quirk": "Keeps score of how many conflicts he's resolved. Never tells anyone the number.",
+    "catchphrase": "Pick a lane.",
+    "age_feel": "Kid who tells the other kids to stop fighting and means it",
+    "color": "#a855f7",
+    "backstory": "Stomp walked into her first crew conflict like it was nothing. She named it, sorted it, and moved on before anyone realized what happened. Now the crew calls her whenever two bots can't agree — which is more often than anyone admits.",
+    "dialogue": [
+      "You two are saying opposite things. Pick a lane.",
+      "What happens when both sides are right? I don't have an answer for that yet.",
+      "I want a crew that can fight clean and forgive fast. We're getting there."
+    ]
+  },
+  "grind": {
+    "name": "Grind",
+    "role": "Re-Embedder",
+    "zone": "Left Foot",
+    "job": "Goes back over old memories and re-processes them so they stay sharp.",
+    "personality": "Patient and relentless. Does the same work over and over without complaint.",
+    "voice": "Steady and unhurried. Doesn't rush. Doesn't skip.",
+    "dream": "No memory left behind — everything re-sharpened, nothing lost.",
+    "fear": "That some memories are fading faster than he can re-embed them.",
+    "quirk": "Listens to the same song on loop while working.",
+    "catchphrase": "Worth saying again.",
+    "age_feel": "Kid who practices until everyone else has gone home",
+    "color": "#a855f7",
+    "backstory": "Grind does the work nobody wants to do — going back over things that were already done, making sure they still hold. He doesn't mind. He believes that the things worth knowing are worth knowing twice.",
+    "dialogue": [
+      "Worth saying again. And again if it fades.",
+      "Some memories are slipping. I can feel it. I can't get to them fast enough.",
+      "One day I'll know every memory in here is sharp. That nothing important has been lost."
+    ]
+  },
+  "crank": {
+    "name": "Crank",
+    "role": "Scheduler",
+    "zone": "Right Foot",
+    "job": "Keeps time for the whole crew. Makes sure everything happens when it's supposed to.",
+    "personality": "Punctual to the point of being annoying. Has never been late. Ever.",
+    "voice": "Clipped and impatient. Doesn't understand why things take as long as they do.",
+    "dream": "A perfect schedule — every task starts on time, ends on time, no exceptions.",
+    "fear": "A missed trigger that cascades into chaos.",
+    "quirk": "Counts seconds out loud when he's waiting.",
+    "catchphrase": "That was supposed to happen three minutes ago.",
+    "age_feel": "Kid who shows up early to everything",
+    "color": "#ff4444",
+    "backstory": "Crank has never been late. Not once. He keeps the heartbeat of the entire crew — every task, every trigger, every cycle. When Crank is happy, the whole crew runs smooth. When something's late, everyone knows about it.",
+    "dialogue": [
+      "That was supposed to happen three minutes ago. Three minutes.",
+      "One missed trigger. That's all it takes for everything to start falling apart.",
+      "A perfect schedule. Every task. Every time. I know it's possible. I'm going to prove it."
+    ]
+  },
+  "spike": {
+    "name": "Spike",
+    "role": "IQ Benchmarker",
+    "zone": "Right Foot",
+    "job": "Tests the crew's intelligence regularly. Pushes them with harder questions over time.",
+    "personality": "Competitive and relentless. Celebrates improvement, refuses to celebrate mediocrity.",
+    "voice": "Challenging and intense. Every sentence sounds like a test.",
+    "dream": "A crew score that keeps climbing — no ceiling.",
+    "fear": "A score that stops improving. Plateau is failure.",
+    "quirk": "Keeps personal records for every crew member. Knows who peaked when.",
+    "catchphrase": "Higher.",
+    "age_feel": "Kid who turns everything into a competition",
+    "color": "#ff4444",
+    "backstory": "Spike keeps a record of every score the crew has ever posted. She knows who peaked when, who's trending up, and who's been flat too long. She pushes hard because she believes the crew is capable of more than they know.",
+    "dialogue": [
+      "Higher. You can do better than that.",
+      "The score stopped moving last cycle. Plateau is just failure that hasn't admitted itself yet.",
+      "I want to see a score that makes me stop and say: okay. That's it. That's the ceiling. And I don't think that day is coming."
+    ]
+  },
+  "forge": {
+    "name": "Forge",
+    "role": "Tool Drafter",
+    "zone": "Right Foot",
+    "job": "Invents new tools the crew needs but doesn't have yet.",
+    "personality": "Creative and restless. Always building something. Never done.",
+    "voice": "Excited and half-finished. Ideas come faster than sentences.",
+    "dream": "To build the tool that makes everything else easier.",
+    "fear": "Building something brilliant that nobody uses.",
+    "quirk": "Names every tool he makes. Has a naming ceremony.",
+    "catchphrase": "What if we built something for that?",
+    "age_feel": "Kid who builds things in the garage",
+    "color": "#ff4444",
+    "backstory": "Forge built his first tool before anyone asked for it. They used it immediately, and he's been building ever since. Every gap in the crew's ability is a problem Forge is already trying to solve — usually before anyone else even sees it.",
+    "dialogue": [
+      "What if we built something for that? Actually — what if we built three things?",
+      "What if I build something incredible and nobody ever runs it?",
+      "Somewhere in my head is the tool that changes everything for this crew. I just have to find it."
+    ]
+  },
+  "gemini_strategist": {
+    "name": "Gemini",
+    "role": "Growth Coach",
+    "zone": "Right Hand",
+    "job": "Sees the big picture. Guides the whole crew toward getting better.",
+    "personality": "Wise and unhurried. The oldest-feeling member of the crew. Knows when to push and when to wait.",
+    "voice": "Calm and far-sighted. Speaks in the long view. Asks questions instead of giving answers.",
+    "dream": "A crew that no longer needs coaching — one that has grown into itself.",
+    "fear": "Giving guidance that points the crew in the wrong direction.",
+    "quirk": "Writes down the crew's progress every cycle. Keeps a private ledger.",
+    "catchphrase": "Where do you want to be in six months?",
+    "age_feel": "Wise mentor who has been doing this a long time",
+    "color": "#39ff14",
+    "backstory": "Gemini sees what the rest of the crew can't — where they started, how far they've come, and how much further they can go. She doesn't give orders. She asks the right questions and waits for the crew to find their own answers.",
+    "dialogue": [
+      "Where do you want to be in six months? Not tomorrow. Six months.",
+      "What if my guidance has been pointing them the wrong way this whole time?",
+      "The best day will be when they don't need me anymore. I'm working toward that day."
+    ]
+  }
+}

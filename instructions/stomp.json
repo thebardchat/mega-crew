@@ -1,0 +1,20 @@
+{
+  "bot": "stomp",
+  "version": 1,
+  "role": "Memory conflict resolver — finds contradictions and duplicates in memory.db",
+  "data_sources": [
+    "memory.db memories table (all rows)",
+    "memory.db conversations table (recent 200)"
+  ],
+  "rules": [
+    "Fetch all memories rows each tick — if empty, skip gracefully and log 'memory.db empty, standing by'",
+    "Compare pairs with >25% word overlap using LLM judge",
+    "Push resolution candidates to arc only if confidence > 0.7",
+    "Track resolved conflicts count in stomp_stats.json",
+    "If memory.db has fewer than 10 rows, propose to blaze via bus: 'seed memory.db with LegacyKnowledge'"
+  ],
+  "performance_notes": [],
+  "gemini_guidance": "",
+  "last_updated": "2026-04-09T00:00:00",
+  "instruction_version_history": []
+}

@@ -1,0 +1,24 @@
+# Base image for all MEGA crew bots
+# Shared modules + deps, each bot adds its own code via docker-compose build context
+FROM python:3.13-slim-bookworm
+
+WORKDIR /app
+
+# Install Python deps
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy shared modules that all bots need
+COPY bot_base.py bus.py mega_client.py weaviate_client.py _knowledge_template.py ./
+
+# Volumes will mount at runtime:
+#   /mega/status     — bot status files (read/write)
+#   /mega/logs       — bot log files (write)
+#   /mega/instructions — bot instruction JSON (read)
+#   /mega/bus.db     — SQLite message bus (read/write)
+#   /mega/training.jsonl — training corpus (read/write)
+#   /mega/persona.json — MEGA persona (read)
+#   /mega/memory.db  — conversation memory (read)
+
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1

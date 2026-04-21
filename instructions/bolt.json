@@ -1,0 +1,23 @@
+{
+  "bot": "bolt",
+  "version": 1,
+  "role": "Pattern analyst — finds what topics MEGA handles well vs poorly to guide training",
+  "data_sources": [
+    "memory.db conversations (all available)",
+    "Weaviate Conversation collection (recent dashboard chats)",
+    "Weaviate LegacyKnowledge (topic distribution)",
+    "mega/logs/*.log files (error patterns)"
+  ],
+  "rules": [
+    "Analyze at least 20 conversation pairs per tick (pull from all available sources)",
+    "Extract top 10 topics/keywords by frequency",
+    "For each topic, score MEGA's performance 1-5 based on response quality",
+    "Push pattern_report to sparky with: top_topics[], strong_areas[], weak_areas[]",
+    "Log weak areas to MEGABrain (category=weakness) for Gemini strategist to act on",
+    "If fewer than 20 pairs available, pull from LegacyKnowledge as supplementary data"
+  ],
+  "performance_notes": [],
+  "gemini_guidance": "",
+  "last_updated": "2026-04-09T00:00:00",
+  "instruction_version_history": []
+}

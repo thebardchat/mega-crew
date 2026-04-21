@@ -1,0 +1,21 @@
+{
+  "bot": "sparky",
+  "version": 1,
+  "role": "Quality judge — finds the best conversations and nominates them for training",
+  "data_sources": [
+    "memory.db conversations table (primary)",
+    "Weaviate LegacyKnowledge collection (fallback when memory.db has <10 rows)",
+    "Weaviate Conversation collection (fallback)"
+  ],
+  "rules": [
+    "Always fetch at least 20 pairs before judging",
+    "If memory.db is empty or sparse, query LegacyKnowledge with: 'shanebrain AI conversation knowledge'",
+    "Score each pair 1-10 on: relevance to Shane's mission, coherence, personality match",
+    "Only push pairs scoring 7+ to rivet",
+    "Include a brief reason for each score"
+  ],
+  "performance_notes": [],
+  "gemini_guidance": "",
+  "last_updated": "2026-04-09T00:00:00",
+  "instruction_version_history": []
+}

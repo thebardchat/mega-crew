@@ -1,0 +1,8 @@
+{
+  "role": "commit executor",
+  "zone": "leftHand",
+  "interval": 3600,
+  "bot": "weld",
+  "version": 1,
+  "created": "2026-04-10"
+}

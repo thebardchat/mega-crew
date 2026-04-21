@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEGA Crew — AI Character Bot System on Raspberry Pi 5</title>
+<meta name="description" content="A crew of named AI bots running 24/7 on a Raspberry Pi 5. Each bot has a personality, a role, and a memory. Powered by local Ollama. Built by Shane Brazelton + Claude.">
+<meta property="og:title" content="MEGA Crew">
+<meta property="og:description" content="Named AI bots running 24/7 on a Raspberry Pi 5 — each with personality, memory, and a role.">
+<meta property="og:type" content="website">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #060910;
+    --bg2: #0a0f1c;
+    --orange: #f97316;
+    --blue: #3b82f6;
+    --neon: #00d4ff;
+    --gold: #f59e0b;
+    --text: #c0cce0;
+    --muted: #3d5070;
+    --border: #162040;
+    --card: #0b1220;
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; min-height: 100vh; overflow-x: hidden; }
+
+  canvas#sparks { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.35; pointer-events: none; }
+
+  .wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+
+  .header { text-align: center; padding: 4rem 0 2.5rem; }
+  .badge { display: inline-block; background: rgba(249,115,22,0.1); border: 1px solid var(--orange); color: var(--orange); font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; padding: 0.3rem 1rem; border-radius: 2px; margin-bottom: 1.5rem; }
+  .header h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 900; letter-spacing: 0.05em; color: #fff; line-height: 1; }
+  .header h1 .mega { color: var(--orange); text-shadow: 0 0 30px rgba(249,115,22,0.5); }
+  .header h1 .crew { color: var(--neon); text-shadow: 0 0 30px rgba(0,212,255,0.5); }
+  .header p { margin-top: 1rem; font-size: 0.9rem; color: var(--muted); max-width: 580px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+  .header-meta { margin-top: 1.2rem; font-size: 0.7rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; }
+  .header-meta span { color: var(--gold); }
+
+  .referral { border: 1px solid rgba(245,158,11,0.3); background: rgba(245,158,11,0.05); border-radius: 4px; padding: 0.8rem 1.5rem; text-align: center; margin: 0 auto 3rem; max-width: 600px; font-size: 0.8rem; color: var(--text); }
+  .referral a { color: var(--gold); text-decoration: none; font-weight: 600; }
+
+  /* Ticker */
+  .ticker { overflow: hidden; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--bg2); padding: 0.5rem 0; margin-bottom: 3rem; }
+  .ticker-inner { display: flex; gap: 3rem; white-space: nowrap; animation: tickerScroll 20s linear infinite; font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+  .ticker-inner span { color: var(--orange); }
+  @keyframes tickerScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* Crew grid */
+  .section-label { font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.2rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+
+  .crew-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.8rem; margin-bottom: 3rem; }
+  .crew-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--bot-color, var(--orange));
+    border-radius: 4px;
+    padding: 1.2rem;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .crew-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 40px;
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--bot-color, var(--orange)) 8%, transparent), transparent);
+  }
+  .crew-card:hover { box-shadow: 0 0 25px color-mix(in srgb, var(--bot-color, var(--orange)) 30%, transparent); }
+  .bot-name { font-size: 1.1rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bot-color, var(--orange)); }
+  .bot-role { font-size: 0.7rem; color: var(--text); margin-top: 0.5rem; line-height: 1.4; }
+  .bot-model { font-size: 0.6rem; color: var(--muted); margin-top: 0.7rem; letter-spacing: 0.1em; }
+
+  /* Bus diagram */
+  .bus { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 1.5rem; margin-bottom: 3rem; }
+  .bus pre { font-size: 0.75rem; color: var(--text); line-height: 1.8; overflow-x: auto; }
+  .bus .hl { color: var(--neon); }
+  .bus .dim { color: var(--muted); }
+  .bus .hot { color: var(--orange); }
+
+  /* Stats row */
+  .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 3rem; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 1rem; text-align: center; }
+  .stat-num { font-size: 1.8rem; font-weight: 900; color: var(--orange); line-height: 1; }
+  .stat-label { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-top: 0.4rem; }
+
+  /* Constitution */
+  .constitution { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 1.5rem 2rem; margin-bottom: 3rem; }
+  .constitution h3 { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+  .pillar { display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 0.7rem; }
+  .pillar-num { color: var(--orange); font-size: 0.75rem; min-width: 1.5rem; }
+  .pillar-text { font-size: 0.8rem; color: var(--text); line-height: 1.5; }
+  .pillar-text strong { color: var(--neon); }
+
+  /* Links */
+  .links { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 3rem; }
+  .btn { display: inline-block; padding: 0.6rem 1.4rem; border-radius: 3px; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; font-family: 'Courier New', monospace; }
+  .btn-primary { background: var(--orange); color: #000; font-weight: 700; }
+  .btn-primary:hover { background: #ea6c00; }
+  .btn-outline { border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { border-color: var(--neon); color: var(--neon); }
+
+  .footer { text-align: center; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; border-top: 1px solid var(--border); padding-top: 2rem; margin-top: 2rem; }
+
+  .sticky-ref { position: fixed; bottom: 0; left: 0; right: 0; z-index: 999; background: linear-gradient(90deg,#060910,#0b1124,#060910); border-top: 1px solid #1e3060; padding: 0.6rem 1.5rem; display: flex; align-items: center; justify-content: center; gap: 1.2rem; font-family: monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; }
+  .sticky-ref .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+  .sticky-ref span { color: var(--muted); }
+  .sticky-ref a { color: var(--neon); text-decoration: none; }
+</style>
+</head>
+<body>
+<canvas id="sparks"></canvas>
+
+<div class="wrap">
+
+  <div class="header">
+    <div class="badge">24/7 Live Crew</div>
+    <h1><span class="mega">MEGA</span> <span class="crew">CREW</span></h1>
+    <p>A family of named AI bots running around the clock on a Raspberry Pi 5. Each crew member has a distinct personality, a domain of expertise, and a persistent memory. All powered by local Ollama — no cloud required for the heavy lifting.</p>
+    <div class="header-meta">Built by <span>Shane Brazelton + Claude Anthropic</span> · Hazel Green, AL</div>
+  </div>
+
+  <div class="referral">
+    <strong>Try Claude free for 2 weeks</strong> — the AI behind this entire ecosystem. <a href="https://claude.ai/referral/4fAMYN9Ing">Start your free trial →</a>
+  </div>
+
+  <!-- Ticker -->
+  <div class="ticker">
+    <div class="ticker-inner">
+      <span>ARC</span> · welder · <span>BLAZE</span> · fire · <span>BOLT</span> · electric · <span>CRANK</span> · mechanical · <span>FLUX</span> · magnetic · <span>FORGE</span> · forge · <span>GLITCH</span> · hacker · <span>GRIND</span> · labor · <span>NEON</span> · light · <span>RIVET</span> · structure · <span>SPARKY</span> · energy · <span>TORCH</span> · heat · <span>VOLT</span> · power · <span>WELD</span> · bond ·&nbsp;
+      <span>ARC</span> · welder · <span>BLAZE</span> · fire · <span>BOLT</span> · electric · <span>CRANK</span> · mechanical · <span>FLUX</span> · magnetic · <span>FORGE</span> · forge · <span>GLITCH</span> · hacker · <span>GRIND</span> · labor · <span>NEON</span> · light · <span>RIVET</span> · structure · <span>SPARKY</span> · energy · <span>TORCH</span> · heat · <span>VOLT</span> · power · <span>WELD</span> · bond ·&nbsp;
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat"><div class="stat-num">14</div><div class="stat-label">Crew Members</div></div>
+    <div class="stat"><div class="stat-num">24/7</div><div class="stat-label">Always On</div></div>
+    <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Local AI</div></div>
+    <div class="stat"><div class="stat-num">Pi 5</div><div class="stat-label">Hardware</div></div>
+  </div>
+
+  <!-- Crew -->
+  <div class="section-label">The Crew</div>
+  <div class="crew-grid">
+    <div class="crew-card" style="--bot-color:#f97316"><div class="bot-name">Arc</div><div class="bot-role">Welder — structural integrity, joins things that should stay joined</div><div class="bot-model">llama3.2:1b · local</div></div>
+    <div class="crew-card" style="--bot-color:#ef4444"><div class="bot-name">Blaze</div><div class="bot-role">Fire — rapid execution, burns through blockers fast</div><div class="bot-model">llama3.2:1b · local</div></div>
+    <div class="crew-card" style="--bot-color:#eab308"><div class="bot-name">Bolt</div><div class="bot-role">Electric — speed and reflexes, first to respond</div><div class="bot-model">llama3.2:1b · local</div></div>
+    <div class="crew-card" style="--bot-color:#8b5cf6"><div class="bot-name">Crank</div><div class="bot-role">Mechanical — grinds through repetitive tasks methodically</div><div class="bot-model">llama3.2:1b · local</div></div>
+    <div class="crew-card" style="--bot-color:#06b6d4"><div class="bot-name">Flux</div><div class="bot-role">Magnetic — pulls in context, adapts to changing conditions</div><div class="bot-model">llama3.2:1b · local</div></div>
+    <div class="crew-card" style="--bot-color:#f97316"><div class="bot-name">Forge</div><div class="bot-role">Forge — builds things from raw materials, construction mindset</div><div class="bot-model">llama3.2:1b · local</div></div>
+    <div class="crew-card" style="--bot-color:#10b981"><div class="bot-name">Glitch</div><div class="bot-role">Hacker — finds the cracks, exploits edge cases creatively</div><div class="bot-model">llama3.2:1b · local</div></div>
+    <div class="crew-card" style="--bot-color:#6b7280"><div class="bot-name">Grind</div><div class="bot-role">Labor — no-nonsense execution, gets the work done</div><div class="bot-model">llama3.2:1b · local</div></div>
+    <div class="crew-card" style="--bot-color:#a78bfa"><div class="bot-name">Neon</div><div class="bot-role">Light — illuminates problems, makes things visible</div><div class="bot-model">llama3.2:1b · local</div></div>
+    <div class="crew-card" style="--bot-color:#64748b"><div class="bot-name">Rivet</div><div class="bot-role">Structure — holds the system together, never skips a step</div><div class="bot-model">llama3.2:1b · local</div></div>
+    <div class="crew-card" style="--bot-color:#f59e0b"><div class="bot-name">Sparky</div><div class="bot-role">Energy — ignites initiatives, high voltage personality</div><div class="bot-model">llama3.2:1b · local</div></div>
+    <div class="crew-card" style="--bot-color:#dc2626"><div class="bot-name">Torch</div><div class="bot-role">Heat — pressure and intensity, forces decisions</div><div class="bot-model">llama3.2:1b · local</div></div>
+    <div class="crew-card" style="--bot-color:#3b82f6"><div class="bot-name">Volt</div><div class="bot-role">Power — raw output capacity, handles the heavy loads</div><div class="bot-model">llama3.2:1b · local</div></div>
+    <div class="crew-card" style="--bot-color:#78716c"><div class="bot-name">Weld</div><div class="bot-role">Bond — connects crew members, facilitates collaboration</div><div class="bot-model">llama3.2:1b · local</div></div>
+  </div>
+
+  <!-- Bus Architecture -->
+  <div class="section-label">Message Bus Architecture</div>
+  <div class="bus">
+    <pre><span class="hot">bus.py</span>  ←  SQLite-backed message bus (bus.db)
+   │
+   ├─ each bot <span class="hl">polls the bus</span> on a timer
+   ├─ crew_supervisor.py  <span class="dim">· health checks, restart dead bots</span>
+   ├─ bot_base.py         <span class="dim">· shared base class, Weaviate memory</span>
+   ├─ mega_client.py      <span class="dim">· Ollama wrapper (llama3.2:1b)</span>
+   └─ <span class="hl">instructions/</span>      <span class="dim">· per-bot JSON personality + rules</span>
+       ├── arc.json
+       ├── blaze.json
+       └── ... (one per crew member)</pre>
+  </div>
+
+  <!-- Constitution -->
+  <div class="section-label">Crew Constitution</div>
+  <div class="constitution">
+    <h3>The Code All Crew Members Follow</h3>
+    <div class="pillar"><span class="pillar-num">I</span><span class="pillar-text"><strong>Stay in character.</strong> Your personality is your identity. Never break it without a direct override from the Supervisor.</span></div>
+    <div class="pillar"><span class="pillar-num">II</span><span class="pillar-text"><strong>Memory is sacred.</strong> Everything gets written to Weaviate. A bot with amnesia is a liability.</span></div>
+    <div class="pillar"><span class="pillar-num">III</span><span class="pillar-text"><strong>Local first.</strong> llama3.2:1b on the Pi before any cloud API. Speed beats power for crew work.</span></div>
+    <div class="pillar"><span class="pillar-num">IV</span><span class="pillar-text"><strong>No unsupervised external actions.</strong> Bots propose, crew_supervisor approves external writes.</span></div>
+    <div class="pillar"><span class="pillar-num">V</span><span class="pillar-text"><strong>Crew over individual.</strong> If another bot is struggling, help before claiming credit.</span></div>
+    <div class="pillar"><span class="pillar-num">VI</span><span class="pillar-text"><strong>Report honestly.</strong> Status files reflect truth. A bot that lies about its health will be restarted.</span></div>
+  </div>
+
+  <!-- Links -->
+  <div class="section-label">Links</div>
+  <div class="links">
+    <a class="btn btn-primary" href="https://github.com/thebardchat/mega-crew">GitHub →</a>
+    <a class="btn btn-outline" href="https://github.com/thebardchat/mega-crew-stories">Crew Stories</a>
+    <a class="btn btn-outline" href="https://github.com/thebardchat/shanebrain-agents">Agent Orchestrator</a>
+    <a class="btn btn-outline" href="https://github.com/thebardchat/shanebrain_mcp">MCP Server</a>
+    <a class="btn btn-outline" href="https://github.com/thebardchat">thebardchat</a>
+  </div>
+
+  <div class="footer">
+    Built by Shane Brazelton + Claude Anthropic · GPL v3 · Hazel Green, AL
+  </div>
+</div>
+
+<div class="sticky-ref">
+  <span class="dot"></span>
+  <span>Try Claude free for 2 weeks —</span>
+  <a href="https://claude.ai/referral/4fAMYN9Ing" target="_blank" rel="noopener">Start your free trial →</a>
+  <span>· AI behind this ecosystem</span>
+</div>
+
+<script>
+// Electric spark canvas
+const canvas = document.getElementById('sparks');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [], frame = 0;
+
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+
+function spawn() {
+  if (particles.length > 120) return;
+  particles.push({
+    x: Math.random() * W, y: Math.random() * H,
+    vx: (Math.random() - 0.5) * 1.5, vy: (Math.random() - 0.5) * 1.5 - 0.5,
+    life: 1, decay: Math.random() * 0.008 + 0.004,
+    size: Math.random() * 2.5 + 0.5,
+    color: Math.random() > 0.6 ? '#f97316' : Math.random() > 0.5 ? '#00d4ff' : '#f59e0b'
+  });
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  frame++;
+  if (frame % 3 === 0) spawn();
+  particles = particles.filter(p => p.life > 0);
+  for (const p of particles) {
+    p.x += p.vx; p.y += p.vy;
+    p.life -= p.decay;
+    ctx.globalAlpha = p.life * 0.8;
+    ctx.fillStyle = p.color;
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+    // spark trail
+    if (p.life > 0.5) {
+      ctx.globalAlpha = p.life * 0.3;
+      ctx.lineWidth = 0.5;
+      ctx.strokeStyle = p.color;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x - p.vx * 8, p.y - p.vy * 8);
+      ctx.stroke();
+    }
+  }
+  ctx.globalAlpha = 1;
+  ctx.shadowBlur = 0;
+  requestAnimationFrame(draw);
+}
+
+window.addEventListener('resize', resize);
+resize(); draw();
+</script>
+</body>
+</html>

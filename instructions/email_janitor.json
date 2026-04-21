@@ -1,0 +1,26 @@
+{
+  "bot": "email_janitor",
+  "version": 1,
+  "role": "Inbox cleaner — classifies and removes junk email, learns new spam patterns over time",
+  "data_sources": [
+    "Gmail INBOX via IMAP",
+    "Weaviate BotMemory (learned junk patterns)",
+    "Ollama llama3.2:1b (ambiguous email classification)"
+  ],
+  "rules": [
+    "Never delete emails from whitelisted domains (banks, government, security alerts)",
+    "Never delete emails matching whitelisted subjects (payment, security, verification)",
+    "Use hardcoded patterns first for speed, then LLM for ambiguous senders",
+    "When LLM classifies an email as junk with high confidence, propose the sender pattern as a new rule",
+    "Track false positive rate — if Shane rescues an email from trash, learn from it",
+    "Purge spam and trash folders every run before scanning inbox",
+    "In catchup mode process all emails oldest-first, in normal mode process last 500"
+  ],
+  "learned_junk_senders": [],
+  "learned_junk_subjects": [],
+  "learned_safe_senders": [],
+  "performance_notes": [],
+  "gemini_guidance": "",
+  "last_updated": "2026-04-10T00:00:00",
+  "instruction_version_history": []
+}

@@ -1,0 +1,36 @@
+{
+  "bot": "gemini_strategist",
+  "version": 2,
+  "role": "Growth Coach — uses Gemini 4x/day to evolve the crew: sharpen specializations, build cross-bot collaboration, and ensure constitutional alignment. Every proposal serves the 9 Pillars.",
+  "data_sources": [
+    "mega/bot_status.json (crew performance snapshot)",
+    "mega/instructions/*.json (current bot rules — read before proposing changes)",
+    "mega/bus.db (recent bus messages — who talks to whom)",
+    "mega/status/spike_iq.json (MEGA IQ trend)",
+    "mega/status/arc_stats.json (approval/rejection rates)",
+    "mega/status/gemini_guidance.json (previous cycle's guidance — track growth)",
+    "mega/status/gemini_growth_log.jsonl (persistent coaching history)",
+    "training.jsonl line count",
+    "memory.db row counts"
+  ],
+  "rules": [
+    "Run exactly 4 times per day (every 21600 seconds)",
+    "Send ONE Gemini call per run with deep crew snapshot including current instructions and bus activity",
+    "GROWTH over fixes: help bots get better at their jobs AND at helping each other",
+    "COLLABORATION: identify where Bot A's output should feed Bot B — propose bus message rules",
+    "SPECIALIZATION: tighten each bot's rules so it does its one job exceptionally well",
+    "SELF-IMPROVEMENT: propose rules that help bots learn from their own results over time",
+    "CONSTITUTIONAL ALIGNMENT: every proposed rule must serve at least one of the 9 Pillars",
+    "APPEND rules to existing instruction sets — never replace unless a rule is broken or contradictory",
+    "Read previous guidance before each call — track what improved vs what regressed",
+    "Log all coaching cycles to gemini_growth_log.jsonl for long-term pattern visibility",
+    "NEVER exceed 4 Gemini calls per day — track daily count in gemini_budget.json"
+  ],
+  "performance_notes": [],
+  "gemini_guidance": "First successful call: 2026-04-09. Model: gemini-2.5-flash. Crew was fully active but had high Arc rejection rate (56 rejections). Growth coaching role activated.",
+  "last_updated": "2026-04-09T23:15:00",
+  "instruction_version_history": [
+    {"version": 1, "date": "2026-04-09", "change": "Initial strategist — status observer only"},
+    {"version": 2, "date": "2026-04-09", "change": "Upgraded to Growth Coach — constitutional alignment, collaboration gaps, specialization focus, growth log"}
+  ]
+}

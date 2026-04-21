@@ -1,0 +1,11 @@
+{
+  "role": "dedup formatter",
+  "zone": "leftHand",
+  "interval": 120,
+  "seen_cache_size": 2000,
+  "bot": "rivet",
+  "version": 1,
+  "created": "2026-04-10",
+  "evolution_level": 0,
+  "last_evolved": null
+}

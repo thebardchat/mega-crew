@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*.log
+*.db
+*.db-shm
+*.db-wal
+*.db.wal-era.*
+*.db.corrupt.*
+*.bak
+.env
+status/
+stories/
+bot_status.json

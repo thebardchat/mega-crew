@@ -1,0 +1,86 @@
+"""
+bus.py — SQLite-backed JSON message bus for MEGA crew.
+All bots push/pull via this. Arc is gatekeeper for core file writes.
+"""
+import os
+import sqlite3
+import json
+from datetime import datetime
+from pathlib import Path
+
+BUS_DB = Path(os.environ.get("MEGA_BASE", "/mnt/shanebrain-raid/shanebrain-core/mega")) / "bus.db"
+
+def _conn():
+    c = sqlite3.connect(str(BUS_DB), timeout=10, check_same_thread=False)
+    c.execute("PRAGMA journal_mode=DELETE")
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS messages (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            sender      TEXT NOT NULL,
+            recipient   TEXT NOT NULL,
+            payload     TEXT NOT NULL,
+            created_at  TEXT NOT NULL,
+            consumed    INTEGER DEFAULT 0
+        )
+    """)
+    c.commit()
+    return c
+
+def push(sender: str, recipient: str, payload: dict) -> int:
+    """Push a message to recipient's queue. Returns message id."""
+    c = _conn()
+    try:
+        cur = c.execute(
+            "INSERT INTO messages (sender, recipient, payload, created_at) VALUES (?,?,?,?)",
+            (sender, recipient, json.dumps(payload), datetime.utcnow().isoformat())
+        )
+        c.commit()
+        return cur.lastrowid
+    finally:
+        c.close()
+
+def pull(recipient: str, limit: int = 50) -> list[dict]:
+    """Pull unconsumed messages for recipient and mark them consumed."""
+    c = _conn()
+    try:
+        rows = c.execute(
+            "SELECT id, sender, payload, created_at FROM messages "
+            "WHERE recipient=? AND consumed=0 ORDER BY id ASC LIMIT ?",
+            (recipient, limit)
+        ).fetchall()
+        if rows:
+            ids = [r[0] for r in rows]
+            c.execute(
+                f"UPDATE messages SET consumed=1 WHERE id IN ({','.join('?'*len(ids))})",
+                ids
+            )
+            c.commit()
+        return [
+            {"id": r[0], "sender": r[1], "payload": json.loads(r[2]), "created_at": r[3]}
+            for r in rows
+        ]
+    finally:
+        c.close()
+
+def queue_depth(recipient: str) -> int:
+    """How many unconsumed messages are waiting for recipient."""
+    c = _conn()
+    try:
+        return c.execute(
+            "SELECT COUNT(*) FROM messages WHERE recipient=? AND consumed=0",
+            (recipient,)
+        ).fetchone()[0]
+    finally:
+        c.close()
+
+def purge_old(days: int = 7):
+    """Delete consumed messages older than N days."""
+    c = _conn()
+    try:
+        c.execute(
+            "DELETE FROM messages WHERE consumed=1 AND created_at < datetime('now', ?)",
+            (f"-{days} days",)
+        )
+        c.commit()
+    finally:
+        c.close()

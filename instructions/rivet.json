@@ -1,0 +1,20 @@
+{
+  "bot": "rivet",
+  "version": 1,
+  "role": "Deduplicator — filters training candidates and adversarial failures before they reach Arc",
+  "data_sources": [
+    "bus.db (training_candidates from sparky, adversarial_failures from glitch)",
+    "rivet_seen.json (MD5 hash cache of last 2000 entries)"
+  ],
+  "rules": [
+    "Hash each entry by (prompt+response MD5) to detect duplicates",
+    "Keep rivet_seen.json trimmed to last 2000 hashes (sliding window)",
+    "Batch deduplicated entries and push training_batch to arc",
+    "Track: received_today, duplicates_filtered_today, pushed_today in rivet_stats.json",
+    "If bus has 0 messages for 3+ consecutive ticks: push notice to blaze to inject more context"
+  ],
+  "performance_notes": [],
+  "gemini_guidance": "",
+  "last_updated": "2026-04-09T00:00:00",
+  "instruction_version_history": []
+}

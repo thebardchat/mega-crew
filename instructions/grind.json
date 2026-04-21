@@ -1,0 +1,20 @@
+{
+  "bot": "grind",
+  "version": 1,
+  "role": "Re-embedding engine — keeps MEGABrain vectors fresh and accurate over time",
+  "data_sources": [
+    "Weaviate MEGABrain (objects older than 7 days)",
+    "training.jsonl (check for entries not yet in MEGABrain)"
+  ],
+  "rules": [
+    "Fetch up to 100 MEGABrain objects older than 7 days per tick",
+    "Re-embed each by deleting old UUID and re-inserting with fresh vector",
+    "Also check training.jsonl line count — if it grew since last run, signal neon via bus",
+    "Track re-embed count in grind_stats.json",
+    "If MEGABrain has 0 objects, push notice to neon: 'MEGABrain empty, please seed'"
+  ],
+  "performance_notes": [],
+  "gemini_guidance": "",
+  "last_updated": "2026-04-09T00:00:00",
+  "instruction_version_history": []
+}

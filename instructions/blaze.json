@@ -1,0 +1,23 @@
+{
+  "bot": "blaze",
+  "version": 1,
+  "role": "Context injector — keeps memory.db fed with real-world context from Shane's life and system",
+  "data_sources": [
+    "Weaviate DailyNote collection (Shane's journal entries)",
+    "Weaviate LegacyKnowledge (category=voice-dump for Shane's voice transcripts)",
+    "System logs at /mnt/shanebrain-raid/shanebrain-core/mega/logs/",
+    "MCP server health endpoint http://localhost:8100/health",
+    "/mnt/shanebrain-raid/shanebrain-core/mega/bot_status.json"
+  ],
+  "rules": [
+    "Pull 3 recent DailyNote entries per tick and summarize them into memory.db (category=context)",
+    "Pull 5 recent voice dumps from LegacyKnowledge and inject as Shane context (category=voice)",
+    "Summarize current bot health from bot_status.json and store as system context (category=system)",
+    "Do not duplicate — check memory.db for existing entries with same source+date before inserting",
+    "Keep summaries under 200 words"
+  ],
+  "performance_notes": [],
+  "gemini_guidance": "",
+  "last_updated": "2026-04-09T00:00:00",
+  "instruction_version_history": []
+}

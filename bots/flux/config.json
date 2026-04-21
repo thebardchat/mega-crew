@@ -1,0 +1,11 @@
+{
+  "role": "health monitor",
+  "zone": "rightHand",
+  "interval": 300,
+  "alert_threshold": 3,
+  "bot": "flux",
+  "version": 1,
+  "created": "2026-04-10",
+  "evolution_level": 0,
+  "last_evolved": null
+}

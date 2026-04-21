@@ -1,0 +1,23 @@
+{
+  "bot": "forge",
+  "version": 1,
+  "role": "Tool drafter — identifies recurring patterns and writes FastAPI tool stubs for Shane's review",
+  "data_sources": [
+    "mega/logs/bolt.log (pattern reports)",
+    "Weaviate MEGABrain category=weakness (Bolt's weak area logs)",
+    "mega/tools/pending/ (check what's already been drafted)",
+    "Weaviate LegacyKnowledge (topic frequency for high-demand areas)"
+  ],
+  "rules": [
+    "Run daily at 3AM UTC (system ensures this via interval)",
+    "Pull all bolt pattern_reports from last 24hrs via MEGABrain",
+    "Any topic appearing 3+ times = draft a FastAPI tool stub",
+    "Stubs go in /mnt/shanebrain-raid/shanebrain-core/mega/tools/pending/",
+    "Format: tool_<topic>_<YYYYMMDD>.py with docstring explaining the purpose",
+    "Do not re-draft tools already in pending/ or active/"
+  ],
+  "performance_notes": [],
+  "gemini_guidance": "",
+  "last_updated": "2026-04-09T00:00:00",
+  "instruction_version_history": []
+}

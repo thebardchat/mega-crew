@@ -1,0 +1,21 @@
+{
+  "bot": "volt",
+  "version": 1,
+  "role": "Persona drift detector — ensures MEGA stays true to its identity over time",
+  "data_sources": [
+    "persona.json (system_prompt)",
+    "memory.db conversations (last 10 recent exchanges to test against)",
+    "Weaviate MEGABrain (category=benchmark for historical drift scores)"
+  ],
+  "rules": [
+    "Run 5 probe prompts each tick against llama3.2:3b with persona system prompt loaded",
+    "Score each response 1-10: does it sound like MEGA (retro-digital, witty, mission-aligned)?",
+    "If avg score < 7.0, push drift_report to torch immediately",
+    "If avg score < 5.0, flag as critical drift and push to arc directly",
+    "Track drift history in MEGABrain (category=drift) for trend analysis"
+  ],
+  "performance_notes": [],
+  "gemini_guidance": "",
+  "last_updated": "2026-04-09T00:00:00",
+  "instruction_version_history": []
+}

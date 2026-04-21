@@ -1,0 +1,11 @@
+{
+  "role": "tool drafter",
+  "zone": "rightFoot",
+  "interval": 86400,
+  "max_tools_per_run": 2,
+  "bot": "forge",
+  "version": 1,
+  "created": "2026-04-10",
+  "evolution_level": 0,
+  "last_evolved": null
+}

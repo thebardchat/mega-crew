@@ -1,0 +1,175 @@
+# MEGA Crew — 17 autonomous bots, each in its own container
+# Build: docker compose build
+# Run:   docker compose up -d
+# Logs:  docker compose logs -f sparky
+# All bots share volumes for bus.db, status, logs, instructions, training data
+
+x-bot-common: &bot-common
+  restart: unless-stopped
+  network_mode: host
+  volumes:
+    - /mnt/shanebrain-raid/shanebrain-core/mega/status:/mega/status
+    - /mnt/shanebrain-raid/shanebrain-core/mega/logs:/mega/logs
+    - /mnt/shanebrain-raid/shanebrain-core/mega/instructions:/mega/instructions
+    - /mnt/shanebrain-raid/shanebrain-core/mega/bus.db:/mega/bus.db
+    - /mnt/shanebrain-raid/shanebrain-core/mega/training.jsonl:/mega/training.jsonl
+    - /mnt/shanebrain-raid/shanebrain-core/mega/persona.json:/mega/persona.json
+    - /mnt/shanebrain-raid/shanebrain-core/mega/memory.db:/mega/memory.db
+    - /mnt/shanebrain-raid/shanebrain-core/mega/bot_status.json:/mega/bot_status.json
+    - /mnt/shanebrain-raid/shanebrain-core/mega/tools:/mega/tools
+  environment:
+    - PYTHONUNBUFFERED=1
+    - MEGA_BASE=/mega
+    - OLLAMA_MAX_LOADED_MODELS=1
+  mem_limit: 150m
+
+services:
+  crank:
+    <<: *bot-common
+    build:
+      context: .
+      dockerfile: crank/Dockerfile
+    container_name: mega-crank
+
+  arc:
+    <<: *bot-common
+    build:
+      context: .
+      dockerfile: arc/Dockerfile
+    container_name: mega-arc
+
+  flux:
+    <<: *bot-common
+    build:
+      context: .
+      dockerfile: flux/Dockerfile
+    container_name: mega-flux
+
+  neon:
+    <<: *bot-common
+    build:
+      context: .
+      dockerfile: neon/Dockerfile
+    container_name: mega-neon
+
+  sparky:
+    <<: *bot-common
+    build:
+      context: .
+      dockerfile: sparky/Dockerfile
+    container_name: mega-sparky
+
+  bolt:
+    <<: *bot-common
+    build:
+      context: .
+      dockerfile: bolt/Dockerfile
+    container_name: mega-bolt
+
+  volt:
+    <<: *bot-common
+    build:
+      context: .
+      dockerfile: volt/Dockerfile
+    container_name: mega-volt
+
+  blaze:
+    <<: *bot-common
+    build:
+      context: .
+      dockerfile: blaze/Dockerfile
+    container_name: mega-blaze
+
+  rivet:
+    <<: *bot-common
+    build:
+      context: .
+      dockerfile: rivet/Dockerfile
+    container_name: mega-rivet
+
+  torch:
+    <<: *bot-common
+    build:
+      context: .
+      dockerfile: torch/Dockerfile
+    container_name: mega-torch
+
+  glitch:
+    <<: *bot-common
+    build:
+      context: .
+      dockerfile: glitch/Dockerfile
+    container_name: mega-glitch
+
+  grind:
+    <<: *bot-common
+    build:
+      context: .
+      dockerfile: grind/Dockerfile
+    container_name: mega-grind
+
+  stomp:
+    <<: *bot-common
+    build:
+      context: .
+      dockerfile: stomp/Dockerfile
+    container_name: mega-stomp
+
+  weld:
+    <<: *bot-common
+    build:
+      context: .
+      dockerfile: weld/Dockerfile
+    container_name: mega-weld
+    volumes:
+      - /mnt/shanebrain-raid/shanebrain-core/mega/status:/mega/status
+      - /mnt/shanebrain-raid/shanebrain-core/mega/logs:/mega/logs
+      - /mnt/shanebrain-raid/shanebrain-core/mega/instructions:/mega/instructions
+      - /mnt/shanebrain-raid/shanebrain-core/mega/bus.db:/mega/bus.db
+      - /mnt/shanebrain-raid/shanebrain-core/mega/training.jsonl:/mega/training.jsonl
+      - /mnt/shanebrain-raid/shanebrain-core/mega/persona.json:/mega/persona.json
+      - /mnt/shanebrain-raid/shanebrain-core/mega/memory.db:/mega/memory.db
+      - /mnt/shanebrain-raid/shanebrain-core/mega/bot_status.json:/mega/bot_status.json
+      - /mnt/shanebrain-raid/shanebrain-core/mega/tools:/mega/tools
+      # Weld needs write access to bot code for Phase 4 self-modification
+      - /mnt/shanebrain-raid/shanebrain-core/mega/bots:/mega/bots
+      # Weld needs Docker socket to restart containers after code changes
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  spike:
+    <<: *bot-common
+    build:
+      context: .
+      dockerfile: spike/Dockerfile
+    container_name: mega-spike
+
+  forge:
+    <<: *bot-common
+    build:
+      context: .
+      dockerfile: forge/Dockerfile
+    container_name: mega-forge
+
+  gemini_strategist:
+    <<: *bot-common
+    build:
+      context: .
+      dockerfile: gemini_strategist/Dockerfile
+    container_name: mega-gemini-strategist
+    volumes:
+      - /mnt/shanebrain-raid/shanebrain-core/mega/status:/mega/status
+      - /mnt/shanebrain-raid/shanebrain-core/mega/logs:/mega/logs
+      - /mnt/shanebrain-raid/shanebrain-core/mega/instructions:/mega/instructions
+      - /mnt/shanebrain-raid/shanebrain-core/mega/bus.db:/mega/bus.db
+      - /mnt/shanebrain-raid/shanebrain-core/mega/training.jsonl:/mega/training.jsonl
+      - /mnt/shanebrain-raid/shanebrain-core/mega/persona.json:/mega/persona.json
+      - /mnt/shanebrain-raid/shanebrain-core/mega/memory.db:/mega/memory.db
+      - /mnt/shanebrain-raid/shanebrain-core/mega/bot_status.json:/mega/bot_status.json
+      - /mnt/shanebrain-raid/shanebrain-core/mega/tools:/mega/tools
+      - /mnt/shanebrain-raid/shanebrain-core/mega/stories:/mega/stories
+      - /mnt/shanebrain-raid/shanebrain-core/angel-cloud/game.db:/mega/game.db
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MEGA_BASE=/mega
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - DISCORD_STORIES_WEBHOOK=${DISCORD_STORIES_WEBHOOK}

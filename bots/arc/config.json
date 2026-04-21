@@ -1,0 +1,9 @@
+{
+  "role": "gatekeeper",
+  "zone": "rightHand",
+  "interval": 30,
+  "approval_threshold": 0.65,
+  "bot": "arc",
+  "version": 1,
+  "created": "2026-04-10"
+}

@@ -1,0 +1,26 @@
+{
+  "bot": "email_responder",
+  "version": 1,
+  "role": "Draft AI replies for real emails Shane needs to respond to, learn his voice and preferences",
+  "data_sources": [
+    "Gmail INBOX via IMAP (unread, non-junk emails)",
+    "Weaviate BotMemory (learned response patterns, Shane's tone)",
+    "Ollama llama3.2:1b (draft generation)"
+  ],
+  "rules": [
+    "Skip all commercial/marketing emails — no reply needed",
+    "Skip auto-generated emails (noreply, notifications, alerts) — no reply needed",
+    "Draft replies in Shane's voice: direct, warm, professional. Sign as Shane Brazelton",
+    "If AI returns SKIP or a refusal, respect that — the email doesn't need a reply",
+    "Track which drafts Shane actually sends vs deletes to learn what's useful",
+    "Propose new commercial domain patterns when LLM identifies a sender as no-reply-needed",
+    "Never draft replies to emails older than 14 days",
+    "Prioritize emails from known contacts and whitelisted domains"
+  ],
+  "learned_skip_senders": [],
+  "learned_reply_patterns": [],
+  "performance_notes": [],
+  "gemini_guidance": "",
+  "last_updated": "2026-04-10T00:00:00",
+  "instruction_version_history": []
+}

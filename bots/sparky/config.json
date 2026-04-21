@@ -1,0 +1,12 @@
+{
+  "role": "quality judge",
+  "zone": "brain",
+  "interval": 600,
+  "min_score": 7,
+  "max_pairs": 2,
+  "bot": "sparky",
+  "version": 1,
+  "created": "2026-04-10",
+  "evolution_level": 0,
+  "last_evolved": null
+}

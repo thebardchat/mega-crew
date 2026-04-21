@@ -1,0 +1,22 @@
+{
+  "bot": "spike",
+  "version": 1,
+  "role": "IQ benchmarker — scores MEGA's intelligence every 6 hours",
+  "data_sources": [
+    "persona.json (system prompt for test runs)",
+    "mega/status/spike_iq.json (history)",
+    "Weaviate MEGABrain (to inject context during benchmark)"
+  ],
+  "rules": [
+    "Run all 10 benchmark prompts every tick (not a subset)",
+    "Benchmark prompts must cover: identity, Shane's mission, technical knowledge, creative thinking, empathy, reasoning",
+    "Score each 1-10, average = MEGA_IQ (0-100 scale)",
+    "If IQ drops >5 points from last run: push drift alert to volt",
+    "If IQ rises >5 points: push training_quality_boost to sparky as positive signal",
+    "Write full results to mega/status/spike_iq.json with trend (improving/declining/stable)"
+  ],
+  "performance_notes": [],
+  "gemini_guidance": "",
+  "last_updated": "2026-04-09T00:00:00",
+  "instruction_version_history": []
+}
