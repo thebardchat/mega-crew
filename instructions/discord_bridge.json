@@ -1,0 +1,32 @@
+{
+  "bot": "discord_bridge",
+  "version": 1,
+  "role": "External I/O — bridges Discord DMs and channel mentions into the SQLite bus, posts crew responses back via per-member webhooks. Wears 17 faces, runs as one process.",
+  "data_sources": [
+    "mega/characters.json (the crew roster — names, dialogue, colors)",
+    "bus.db (push inbound DMs, pull outbound to recipient='discord')",
+    "env vars WEBHOOK_<NAME> (one per crew member)",
+    "env DISCORD_TOKEN (the bot's auth)",
+    "weaviate IgnitionEvent class (for /godmode, /log, /mood, /recent commands)"
+  ],
+  "rules": [
+    "Inbound DM or @mention — parse first word to detect recipient crew member; default to 'arc' if none matched (Arc broadcasts as needed)",
+    "Inbound is pushed to bus with sender='discord', recipient=<bot_id>, payload includes from_user/channel/content/ts",
+    "Outbound: poll bus.pull('discord') every 2 seconds, post via the sender's webhook with their display_name and avatar from GitHub raw",
+    "Slash-style commands (also work as plain DM text): /who /recent /godmode /log /mood",
+    "Avatar URL pattern: https://raw.githubusercontent.com/thebardchat/mega-crew/main/cards/mega_front/<bot_id>_mega_front.png",
+    "If a recipient's webhook env var is missing, fall back to plain bot message (preserves identity hint)",
+    "Never expose DISCORD_TOKEN or webhook URLs in posts/logs",
+    "Status file at /mega/status/discord_bridge.json updated on every drain cycle",
+    "Discord 2000-char message limit — trim payload.content to 1900 with buffer",
+    "Respect Arc's gating — Discord is just an I/O channel; outbound messages still come from crew bots that may pass through Arc review"
+  ],
+  "performance_notes": [
+    "Poll interval 2s is responsive without hammering SQLite",
+    "Single aiohttp session reused across all webhook posts and Weaviate calls",
+    "Background drain task runs in same event loop as discord.py to avoid thread-safety issues with bus.db"
+  ],
+  "gemini_guidance": "",
+  "last_updated": "2026-05-26T18:30:00",
+  "instruction_version_history": []
+}

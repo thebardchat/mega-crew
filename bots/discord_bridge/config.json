@@ -1,0 +1,9 @@
+{
+  "role": "external_io",
+  "zone": "external_io",
+  "interval": 2,
+  "bot": "discord_bridge",
+  "version": 1,
+  "created": "2026-05-26",
+  "notes": "Discord I/O bridge. Wears 17 faces via webhooks. Routes DMs → bus.push, polls bus.pull for outbound."
+}
