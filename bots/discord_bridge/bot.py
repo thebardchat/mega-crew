@@ -1,32 +1,31 @@
 """
-discord_bridge — Shane's MEGA Crew Discord I/O channel.
+discord_bridge — Shane's MEGA Crew Discord I/O hub.
 
-This is NOT a 17-bots-on-Discord setup. It's ONE Discord application
-that wears 17 different faces via webhooks. Each crew member speaks
-with their own name, avatar, and voice — but underneath, this single
-bridge routes traffic in and out of the existing SQLite bus.
+NEW ARCHITECTURE (Path B): one process runs:
+  - The hub bot (MEGA Crew Bridge) — keeps channel webhooks + slash commands
+  - 17 individual crew bots — each with their own token, profile, DM channel
 
-INBOUND:  Discord DM / channel mention → bus.push(sender="discord", recipient="<bot>", payload)
-OUTBOUND: bus.pull(recipient="discord") → POST to that bot's webhook URL
+When you DM "Arc" directly, Arc's bot receives the DM, pushes to bus.
+When Arc's crew container responds, the response posts in YOUR DM with Arc.
 
-Each crew member's avatar is loaded from the public GitHub raw URL:
-  https://raw.githubusercontent.com/thebardchat/mega-crew/main/cards/mega_front/<name>_mega_front.png
+Each crew bot identity is loaded from env:
+  DISCORD_TOKEN_ARC, DISCORD_TOKEN_SPARKY, DISCORD_TOKEN_WELD, ...
 
-Slash-style commands (also work in DMs as plain text):
-  /godmode     → write IgnitionEvent to Weaviate (surface=discord)
-  /recent      → last 5 IgnitionEvents
-  /who         → list the crew + roles
-  /log <text>  → quick log moment
-  /mood <tag>  → quick mood check
+The hub bot (singular) is optional now but kept for channel routing:
+  DISCORD_TOKEN — the original hub bot from Path A
 
-Routing pattern:
-  "arc check the queue"   → routes to arc
-  "@volt scan drift"      → routes to volt
-  "gemini six months"     → routes to gemini_strategist
-  (anything else)         → broadcast to bus with recipient="crew" — Arc picks it up
+If DISCORD_TOKEN is unset, only the 17 individuals run.
+If individual DISCORD_TOKEN_<NAME> vars are unset, those crew members
+fall back to the webhook posting via the hub bot.
+
+The bus stays the single source of truth:
+  - Inbound:  push(sender="discord", recipient="<bot_id>", payload={...type: discord_message...})
+  - Outbound: each crew bot drains its own queue, formats, posts in DM
 
 Author: Shane Brazelton + Claude
 """
+from __future__ import annotations
+
 import asyncio
 import json
 import logging
@@ -35,17 +34,16 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Shared crew modules (bus, bot_base, mega_client) are on PYTHONPATH=/app via base image
 import aiohttp
 import discord
 from discord import app_commands
 
-import bus  # SQLite message bus shared with the rest of the crew
+import bus
 
 # ──────────────────────────────────────────────────────────────────────
-# Configuration — env vars (set via docker-compose.yml or .env)
+# Configuration
 # ──────────────────────────────────────────────────────────────────────
-DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN", "")
+HUB_TOKEN     = os.environ.get("DISCORD_TOKEN", "")  # the original Path-A bridge bot
 WEAVIATE_URL  = os.environ.get("WEAVIATE_URL", "http://100.100.90.66:8080")
 GITHUB_RAW    = "https://raw.githubusercontent.com/thebardchat/mega-crew/main/cards/mega_front"
 MEGA_BASE     = Path(os.environ.get("MEGA_BASE", "/mega"))
@@ -62,10 +60,9 @@ logging.basicConfig(
 log = logging.getLogger("discord_bridge")
 
 # ──────────────────────────────────────────────────────────────────────
-# Load the crew roster (characters.json)
+# Load roster + per-DM webhook URLs (for fallback when no individual token)
 # ──────────────────────────────────────────────────────────────────────
 def load_characters() -> dict:
-    """Read the crew roster. Returns dict keyed by bot id."""
     if not CHARACTERS_JSON.exists():
         log.error("characters.json not found at %s", CHARACTERS_JSON)
         return {}
@@ -76,55 +73,23 @@ def load_characters() -> dict:
         return {}
 
 CHARACTERS = load_characters()
-CREW_NAMES = list(CHARACTERS.keys())  # ['sparky', 'arc', 'weld', ...]
 
 def webhook_env_for(bot_id: str) -> str:
-    """e.g. arc → WEBHOOK_ARC, gemini_strategist → WEBHOOK_GEMINI_STRATEGIST."""
     return f"WEBHOOK_{bot_id.upper()}"
 
+def token_env_for(bot_id: str) -> str:
+    return f"DISCORD_TOKEN_{bot_id.upper()}"
+
 def avatar_url_for(bot_id: str) -> str:
-    """Public GitHub raw URL for the bot's mega_front card."""
     return f"{GITHUB_RAW}/{bot_id}_mega_front.png"
 
 def display_name_for(bot_id: str) -> str:
-    """The crew member's actual name from characters.json, or capitalized id."""
     return CHARACTERS.get(bot_id, {}).get("name", bot_id.replace("_", " ").title())
 
 def color_for(bot_id: str) -> int:
-    """Hex color from characters.json, parsed to Discord int."""
-    hex_color = CHARACTERS.get(bot_id, {}).get("color", "#ff5500")
-    return int(hex_color.lstrip("#"), 16)
-
-# ──────────────────────────────────────────────────────────────────────
-# Bot identity routing — find which crew member a message is for
-# ──────────────────────────────────────────────────────────────────────
-def detect_recipient(text: str) -> str | None:
-    """
-    Look at the first 1-2 words of text. If they match a crew member id or name,
-    return the canonical id. Else return None (caller falls back to 'crew' broadcast).
-    """
-    if not text:
-        return None
-    cleaned = text.strip().lstrip("@/").lower()
-    if not cleaned:
-        return None
-    first = cleaned.split()[0].rstrip(":,.!?")
-    if first in CREW_NAMES:
-        return first
-    # Match by display name ("gemini" → gemini_strategist)
-    for bot_id, character in CHARACTERS.items():
-        name_lower = character.get("name", "").lower()
-        if name_lower == first or bot_id.startswith(first + "_"):
-            return bot_id
-    return None
+    return int(CHARACTERS.get(bot_id, {}).get("color", "#ff5500").lstrip("#"), 16)
 
 def pick_response_line(bot_id: str, kind: str = "action") -> str:
-    """
-    Pull a dialogue line from the bot's character entry.
-    kind=action → dialogue[0] (confirmation/work)
-    kind=fear   → dialogue[1] (doubt)
-    kind=dream  → dialogue[2] (aspiration)
-    """
     c = CHARACTERS.get(bot_id, {})
     dlg = c.get("dialogue", [])
     if not dlg:
@@ -132,302 +97,356 @@ def pick_response_line(bot_id: str, kind: str = "action") -> str:
     idx = {"action": 0, "fear": 1, "dream": 2}.get(kind, 0)
     return dlg[idx] if idx < len(dlg) else dlg[0]
 
-# ──────────────────────────────────────────────────────────────────────
-# Weaviate writes — IgnitionEvent class
-# ──────────────────────────────────────────────────────────────────────
-async def write_ignition_event(session: aiohttp.ClientSession, props: dict) -> str | None:
-    """POST an IgnitionEvent to Weaviate. Returns the new object id."""
-    payload = {
-        "class": "IgnitionEvent",
-        "properties": {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "host": "shanebrain",
-            **props,
-        },
-    }
-    try:
-        async with session.post(
-            f"{WEAVIATE_URL}/v1/objects",
-            json=payload,
-            timeout=aiohttp.ClientTimeout(total=8),
-        ) as r:
-            if r.status >= 300:
-                body = await r.text()
-                log.warning("Weaviate write %s: %s", r.status, body[:200])
-                return None
-            data = await r.json()
-            return data.get("id")
-    except Exception as e:
-        log.warning("Weaviate write failed: %s", e)
-        return None
+# Sobriety days (for IgnitionEvents from /godmode-type commands)
+SOB_START = datetime(2023, 11, 27, tzinfo=timezone.utc)
+def sobriety_days() -> int:
+    return (datetime.now(timezone.utc) - SOB_START).days
 
-async def query_recent_ignitions(session: aiohttp.ClientSession, limit: int = 5) -> list[dict]:
-    q = {
-        "query": "{Get{IgnitionEvent(limit:" + str(limit) +
-                 ',sort:[{path:["timestamp"],order:desc}])'
-                 "{timestamp surface host sobriety_days verse_ref action_taken mood notes}}}"
-    }
-    try:
-        async with session.post(
-            f"{WEAVIATE_URL}/v1/graphql",
-            json=q,
-            timeout=aiohttp.ClientTimeout(total=8),
-        ) as r:
-            data = await r.json()
-            return data.get("data", {}).get("Get", {}).get("IgnitionEvent", []) or []
-    except Exception as e:
-        log.warning("Weaviate query failed: %s", e)
-        return []
-
-# ──────────────────────────────────────────────────────────────────────
-# Outbound — post to a bot's webhook
-# ──────────────────────────────────────────────────────────────────────
-async def post_as_crew(
-    session: aiohttp.ClientSession,
-    bot_id: str,
-    content: str,
-    embed: dict | None = None,
-) -> bool:
-    """Post a message via the crew member's Discord webhook."""
-    url = os.environ.get(webhook_env_for(bot_id), "")
-    if not url:
-        log.warning("No webhook configured for %s (env %s)", bot_id, webhook_env_for(bot_id))
-        return False
-    body = {
-        "username": display_name_for(bot_id),
-        "avatar_url": avatar_url_for(bot_id),
-        "content": content[:1900],  # Discord 2000-char limit, leave buffer
-    }
-    if embed:
-        body["embeds"] = [embed]
-    try:
-        async with session.post(url, json=body, timeout=aiohttp.ClientTimeout(total=10)) as r:
-            if r.status >= 300:
-                log.warning("Webhook %s returned %s", bot_id, r.status)
-                return False
-            return True
-    except Exception as e:
-        log.warning("Webhook post failed for %s: %s", bot_id, e)
-        return False
-
-# ──────────────────────────────────────────────────────────────────────
 # Status file — Flux watches this
-# ──────────────────────────────────────────────────────────────────────
-def write_status(state: str, action: str):
+def write_status(state: str, action: str, extra: dict | None = None):
     now = datetime.now(timezone.utc).isoformat()
-    STATUS_FILE.write_text(json.dumps({
+    body = {
         "status": state,
         "last_run": now,
         "last_action": action,
         "zone": "external_io",
         "interval_seconds": int(POLL_INTERVAL_SEC),
         "next_run": now,
-    }, indent=2))
+    }
+    if extra:
+        body.update(extra)
+    STATUS_FILE.write_text(json.dumps(body, indent=2))
 
 # ──────────────────────────────────────────────────────────────────────
-# Discord client
+# Weaviate writes (IgnitionEvent)
 # ──────────────────────────────────────────────────────────────────────
-intents = discord.Intents.default()
-intents.message_content = True
-intents.dm_messages = True
+async def write_ignition(session: aiohttp.ClientSession, props: dict) -> str | None:
+    payload = {
+        "class": "IgnitionEvent",
+        "properties": {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "host": "shanebrain",
+            "sobriety_days": sobriety_days(),
+            "verse_ref": "Joshua 1:9",
+            **props,
+        },
+    }
+    try:
+        async with session.post(
+            f"{WEAVIATE_URL}/v1/objects", json=payload,
+            timeout=aiohttp.ClientTimeout(total=8),
+        ) as r:
+            if r.status >= 300:
+                return None
+            data = await r.json()
+            return data.get("id")
+    except Exception:
+        return None
 
-class CrewDiscord(discord.Client):
-    def __init__(self):
-        super().__init__(intents=intents)
-        self.tree = app_commands.CommandTree(self)
-        self.session: aiohttp.ClientSession | None = None
+# ──────────────────────────────────────────────────────────────────────
+# Payload formatter — shared by all bots' outbound paths
+# ──────────────────────────────────────────────────────────────────────
+def format_payload(payload: dict | str, sender: str) -> tuple[str | None, dict | None]:
+    if isinstance(payload, str):
+        return payload, None
+    if payload.get("content"):
+        return str(payload["content"]), payload.get("embed")
+    if payload.get("message"):
+        return str(payload["message"]), payload.get("embed")
+    if payload.get("type") == "arc_rejection":
+        original = payload.get("original_type") or "unknown"
+        reason = payload.get("reason") or "no reason given"
+        guidance = payload.get("guidance") or ""
+        conf = payload.get("confidence")
+        lines = [f"**Rejected:** `{original}`", f"*{reason}*"]
+        if guidance:
+            lines.append(f"→ {guidance}")
+        if conf is not None:
+            lines.append(f"_confidence {conf}_")
+        return "\n".join(lines), None
+    if payload.get("type") == "arc_approval":
+        original = payload.get("original_type") or "?"
+        content = f"**Approved:** `{original}`"
+        if payload.get("reason"):
+            content += f"\n_{payload['reason']}_"
+        return content, None
+    if payload.get("type") in ("status_update", "heartbeat"):
+        state = payload.get("status") or payload.get("state") or "?"
+        action = payload.get("action") or payload.get("last_action") or ""
+        return f"_{state}_" + (f" — {action}" if action else ""), None
+    useful = {k: v for k, v in payload.items()
+              if k not in ("ts", "timestamp", "id", "channel_id", "channel_type", "from_user")
+              and not k.startswith("_") and v not in (None, "", [], {})}
+    if 0 < len(useful) <= 3:
+        return "\n".join(f"**{k}:** {v}" for k, v in useful.items()), None
+    return None, None
 
-    async def setup_hook(self):
-        # Persistent HTTP session for Weaviate + webhooks
-        self.session = aiohttp.ClientSession()
-        # Background task: drain bus messages addressed to "discord"
-        self.loop.create_task(self.drain_bus_loop())
-        # Sync slash commands globally (may take ~1hr to propagate first time)
-        try:
-            await self.tree.sync()
-        except Exception as e:
-            log.warning("Slash sync failed: %s", e)
-        write_status("OK", "Discord bridge online")
+# ──────────────────────────────────────────────────────────────────────
+# Individual crew bot — one per crew member
+# ──────────────────────────────────────────────────────────────────────
+class CrewBot:
+    """A single Discord client wearing one crew member's identity."""
+
+    def __init__(self, bot_id: str, character: dict, token: str):
+        self.bot_id = bot_id
+        self.character = character
+        self.token = token
+        intents = discord.Intents.default()
+        intents.message_content = True
+        intents.dm_messages = True
+        self.client = discord.Client(intents=intents)
+        self._user_dm_channels: dict[int, discord.DMChannel] = {}  # user_id → DMChannel
+        # Register events
+        self.client.event(self.on_ready)
+        self.client.event(self.on_message)
 
     async def on_ready(self):
-        log.info("Connected as %s (id=%s) — %d crew members loaded",
-                 self.user, self.user.id if self.user else "?", len(CHARACTERS))
-        write_status("OK", f"Connected as {self.user}")
+        u = self.client.user
+        log.info("[%s] online as %s (id=%s)", self.bot_id, u, u.id if u else "?")
 
     async def on_message(self, msg: discord.Message):
-        # Ignore self and other bots
-        if msg.author == self.user or msg.author.bot:
+        if msg.author == self.client.user or msg.author.bot:
             return
-        # Only respond to DMs or @mentions in guilds
-        is_dm = isinstance(msg.channel, discord.DMChannel)
-        is_mention = self.user in msg.mentions
-        if not (is_dm or is_mention):
+        # Only respond to DMs — channel messages are the hub bot's job
+        if not isinstance(msg.channel, discord.DMChannel):
             return
 
-        text = msg.content
-        # Strip @bot prefix if present
-        for m in msg.mentions:
-            text = text.replace(f"<@{m.id}>", "").replace(f"<@!{m.id}>", "")
-        text = text.strip()
+        # Cache this user's DM channel so we can post unsolicited messages later
+        self._user_dm_channels[msg.author.id] = msg.channel
 
-        log.info("DM from %s: %s", msg.author, text[:80])
+        text = msg.content.strip()
+        log.info("[%s] DM from %s: %s", self.bot_id, msg.author, text[:80])
 
-        # Slash-style command dispatch (works in DMs as plain text too)
-        lower = text.lower().strip()
-        if lower.startswith("/who"):
-            return await self.cmd_who(msg)
-        if lower.startswith("/recent"):
-            return await self.cmd_recent(msg)
-        if lower.startswith("/godmode"):
-            return await self.cmd_godmode(msg, text)
-        if lower.startswith("/log"):
-            return await self.cmd_log(msg, text[4:].strip())
-        if lower.startswith("/mood"):
-            return await self.cmd_mood(msg, text[5:].strip())
-
-        # Route to a specific crew member if named in first word
-        recipient = detect_recipient(text)
-        if recipient:
-            return await self.dispatch_to_crew(msg, recipient, text)
-
-        # Otherwise broadcast — Arc will pick up
-        await self.dispatch_to_crew(msg, "arc", text)
-
-    # ──────────────────────────────────────────────────────────────
-    # Slash / text commands
-    # ──────────────────────────────────────────────────────────────
-    async def cmd_who(self, msg: discord.Message):
-        lines = ["**MEGA Crew Roster**"]
-        for bot_id, c in CHARACTERS.items():
-            lines.append(f"• **{c.get('name','?')}** — {c.get('role','?')}  ({c.get('zone','?')})")
-        await msg.channel.send("\n".join(lines)[:1990])
-
-    async def cmd_recent(self, msg: discord.Message):
-        events = await query_recent_ignitions(self.session, limit=5)
-        if not events:
-            await msg.channel.send("No ignitions found in Weaviate (or query failed).")
+        # Special command: anything starting with /
+        if text.startswith("/"):
+            await self._handle_command(msg, text)
             return
-        lines = ["**Recent IgnitionEvents**"]
-        for e in events:
-            ts = e.get("timestamp", "?")
-            lines.append(f"`{ts[:19]}` `{e.get('surface','?')}@{e.get('host','?')}` "
-                         f"sobriety:{e.get('sobriety_days','?')} "
-                         f"mood:{e.get('mood','-')}")
-            if e.get("notes"):
-                lines.append(f"  └─ _{e['notes'][:140]}_")
-        await msg.channel.send("\n".join(lines)[:1990])
 
-    async def cmd_godmode(self, msg: discord.Message, raw: str):
-        notes = raw.replace("/godmode", "", 1).strip() or "Ignited from Discord"
-        oid = await write_ignition_event(self.session, {
-            "surface": "discord",
-            "action_taken": "godmode_ignite",
-            "arc_approved": True,
-            "notes": f"[{msg.author}] {notes}",
-        })
-        if oid:
-            await msg.channel.send(f"🔥 GOD MODE IGNITED · `{oid[:8]}` written to canonical memory.")
-        else:
-            await msg.channel.send("⚠️ Ignition logged locally but Weaviate write failed. Check logs.")
-
-    async def cmd_log(self, msg: discord.Message, notes: str):
-        if not notes:
-            await msg.channel.send("Usage: `/log <what's on your mind>`")
-            return
-        oid = await write_ignition_event(self.session, {
-            "surface": "discord",
-            "action_taken": "log_moment",
-            "arc_approved": True,
-            "notes": f"[{msg.author}] {notes}",
-        })
-        if oid:
-            await msg.channel.send(f"✍️ Logged · `{oid[:8]}`")
-        else:
-            await msg.channel.send("⚠️ Log write failed.")
-
-    async def cmd_mood(self, msg: discord.Message, mood: str):
-        valid = {"focused", "flow", "stuck", "tired", "grateful"}
-        m = (mood or "").lower().strip()
-        if m not in valid:
-            await msg.channel.send(f"Mood must be one of: {', '.join(valid)}")
-            return
-        oid = await write_ignition_event(self.session, {
-            "surface": "discord",
-            "action_taken": "mood_check",
-            "arc_approved": True,
-            "mood": m,
-            "notes": f"Mood check from {msg.author}",
-        })
-        await msg.channel.send(f"🧠 Mood `{m}` logged · `{(oid or '????')[:8]}`")
-
-    # ──────────────────────────────────────────────────────────────
-    # Crew dispatch — push to bus, ack to user
-    # ──────────────────────────────────────────────────────────────
-    async def dispatch_to_crew(self, msg: discord.Message, recipient: str, text: str):
+        # Push to bus addressed to THIS crew member
         bus.push(
             sender="discord",
-            recipient=recipient,
+            recipient=self.bot_id,
             payload={
+                "type": "discord_message",
                 "from_user": str(msg.author),
+                "from_user_id": msg.author.id,
                 "channel_id": msg.channel.id,
-                "channel_type": "dm" if isinstance(msg.channel, discord.DMChannel) else "guild",
+                "channel_type": "dm",
                 "content": text,
                 "ts": datetime.now(timezone.utc).isoformat(),
             },
         )
-        # Quick ack from the recipient via their webhook (using their action dialogue)
-        ack = pick_response_line(recipient, "action")
-        posted = await post_as_crew(self.session, recipient,
-                                    f"_{ack}_  (received from {msg.author.display_name})")
-        if not posted:
-            # Fallback to bot message if webhook not set
-            await msg.channel.send(
-                f"**{display_name_for(recipient)}:** _{ack}_  "
-                f"(no webhook configured — set `{webhook_env_for(recipient)}` in env to give them their face)"
-            )
 
-    # ──────────────────────────────────────────────────────────────
-    # Outbound loop — bus → Discord
-    # ──────────────────────────────────────────────────────────────
-    async def drain_bus_loop(self):
-        log.info("Bus drain loop started (interval=%ss)", POLL_INTERVAL_SEC)
-        while not self.is_closed():
+        # Quick ack with the crew member's action dialogue line
+        try:
+            ack_line = pick_response_line(self.bot_id, "action")
+            await msg.channel.send(f"_{ack_line}_")
+        except Exception as e:
+            log.warning("[%s] ack failed: %s", self.bot_id, e)
+
+    async def _handle_command(self, msg: discord.Message, text: str):
+        """Slash-style commands as plain text in DM."""
+        lower = text.lower()
+        if lower == "/who":
+            await msg.channel.send(
+                f"I'm **{self.character.get('name', self.bot_id)}** — "
+                f"{self.character.get('role', '?')}.  "
+                f"_{self.character.get('catchphrase', '')}_"
+            )
+        elif lower.startswith("/log"):
+            note = text[4:].strip()
+            session = getattr(self.client, "_aio_session", None)
+            if session and note:
+                oid = await write_ignition(session, {
+                    "surface": f"discord_dm_{self.bot_id}",
+                    "action_taken": "log_moment",
+                    "arc_approved": True,
+                    "notes": f"[{msg.author}] {note}",
+                })
+                await msg.channel.send(
+                    f"Logged · `{(oid or '????')[:8]}`" if oid else "Log failed."
+                )
+            else:
+                await msg.channel.send("Usage: `/log <text>`")
+        elif lower.startswith("/godmode"):
+            note = text.replace("/godmode", "", 1).strip() or f"Ignited via DM with {self.character.get('name', self.bot_id)}"
+            session = getattr(self.client, "_aio_session", None)
+            if session:
+                oid = await write_ignition(session, {
+                    "surface": f"discord_dm_{self.bot_id}",
+                    "action_taken": "godmode_ignite",
+                    "arc_approved": True,
+                    "notes": note,
+                })
+                await msg.channel.send(
+                    f"🔥 GOD MODE · `{(oid or '????')[:8]}`"
+                )
+        else:
+            await msg.channel.send(f"_{self.character.get('catchphrase', 'Acknowledged.')}_")
+
+    async def deliver_to_user(self, user_id: int, content: str, embed: dict | None = None):
+        """Post a message in a user's DM with this bot. Opens DM channel if needed."""
+        channel = self._user_dm_channels.get(user_id)
+        if not channel:
             try:
-                messages = await asyncio.to_thread(bus.pull, "discord", 20)
+                user = await self.client.fetch_user(user_id)
+                channel = await user.create_dm()
+                self._user_dm_channels[user_id] = channel
+            except Exception as e:
+                log.warning("[%s] cannot open DM with user %s: %s", self.bot_id, user_id, e)
+                return False
+        try:
+            if embed:
+                e = discord.Embed.from_dict(embed)
+                await channel.send(content=content[:1900], embed=e)
+            else:
+                await channel.send(content[:1900])
+            return True
+        except Exception as e:
+            log.warning("[%s] DM send failed: %s", self.bot_id, e)
+            return False
+
+    async def start(self):
+        await self.client.start(self.token)
+
+    @property
+    def user_id(self) -> int | None:
+        return self.client.user.id if self.client.user else None
+
+# ──────────────────────────────────────────────────────────────────────
+# Hub bot — keeps the old Path-A channel webhook flow alive
+# ──────────────────────────────────────────────────────────────────────
+class HubBot:
+    """The original 'MEGA Crew Bridge' bot — channel mentions + webhook posts."""
+
+    def __init__(self, token: str):
+        self.token = token
+        intents = discord.Intents.default()
+        intents.message_content = True
+        intents.dm_messages = True
+        self.client = discord.Client(intents=intents)
+        self.client.event(self.on_ready)
+        self.client.event(self.on_message)
+
+    async def on_ready(self):
+        log.info("[hub] online as %s", self.client.user)
+
+    async def on_message(self, msg: discord.Message):
+        if msg.author == self.client.user or msg.author.bot:
+            return
+        # Hub only handles channel @mentions; individual bots own DMs
+        if isinstance(msg.channel, discord.DMChannel):
+            await msg.channel.send(
+                "_(This is the hub bot. To talk one-on-one, DM the crew member directly — "
+                "Arc, Sparky, Weld, etc. show up in your DM list as separate people.)_"
+            )
+            return
+        if self.client.user not in msg.mentions:
+            return
+        # Strip the mention and route
+        text = msg.content
+        for m in msg.mentions:
+            text = text.replace(f"<@{m.id}>", "").replace(f"<@!{m.id}>", "")
+        text = text.strip()
+        bus.push(
+            sender="discord",
+            recipient="arc",  # broadcasts go to Arc first
+            payload={
+                "type": "discord_message",
+                "from_user": str(msg.author),
+                "from_user_id": msg.author.id,
+                "channel_id": msg.channel.id,
+                "channel_type": "guild",
+                "content": text,
+                "ts": datetime.now(timezone.utc).isoformat(),
+            },
+        )
+
+    async def start(self):
+        await self.client.start(self.token)
+
+# ──────────────────────────────────────────────────────────────────────
+# Bus drain — fans messages out to the right crew bot's DM
+# ──────────────────────────────────────────────────────────────────────
+async def drain_bus(crew: dict[str, CrewBot]):
+    log.info("Bus drain loop started (interval=%ss) — %d crew bots", POLL_INTERVAL_SEC, len(crew))
+    while True:
+        try:
+            # We pull for "discord" (legacy hub recipient) AND for each crew member
+            recipients = ["discord"] + list(crew.keys())
+            posted = 0
+            for r in recipients:
+                messages = await asyncio.to_thread(bus.pull, r, 20)
                 for m in messages:
                     payload = m.get("payload", {})
-                    sender = m.get("sender", "crew")
-                    content = payload.get("content") or payload.get("message") or str(payload)
-                    embed = payload.get("embed")
-                    posted = await post_as_crew(self.session, sender, content, embed=embed)
-                    if not posted:
-                        log.info("Drained but couldn't post for %s — message dropped", sender)
-                write_status("OK", f"drained={len(messages)}")
-            except Exception as e:
-                log.error("drain loop error: %s", e)
-                write_status("ERROR", str(e)[:120])
-            await asyncio.sleep(POLL_INTERVAL_SEC)
-
-    async def close(self):
-        if self.session:
-            await self.session.close()
-        await super().close()
+                    sender = m.get("sender", r)
+                    content, embed = format_payload(
+                        payload if isinstance(payload, dict) else {},
+                        sender,
+                    )
+                    if not content:
+                        continue
+                    # If addressed to a specific crew member, deliver via that crew member's bot
+                    if r in crew:
+                        user_id = payload.get("from_user_id") if isinstance(payload, dict) else None
+                        # If no user_id in payload, this is an unsolicited broadcast; skip silently
+                        if user_id:
+                            ok = await crew[r].deliver_to_user(user_id, content, embed)
+                            if ok:
+                                posted += 1
+            write_status("OK", f"drained posted={posted}")
+        except Exception as e:
+            log.error("drain loop error: %s", e)
+            write_status("ERROR", str(e)[:120])
+        await asyncio.sleep(POLL_INTERVAL_SEC)
 
 # ──────────────────────────────────────────────────────────────────────
 # Main
 # ──────────────────────────────────────────────────────────────────────
-def main():
-    if not DISCORD_TOKEN:
-        log.error("DISCORD_TOKEN env var is required. Aborting.")
-        sys.exit(1)
+async def main():
     if not CHARACTERS:
-        log.error("Empty character roster. Make sure characters.json is mounted at %s",
-                  CHARACTERS_JSON)
+        log.error("Empty character roster. characters.json missing or unreadable.")
         sys.exit(1)
 
-    write_status("STARTING", f"Loading {len(CHARACTERS)} crew members")
-    client = CrewDiscord()
-    client.run(DISCORD_TOKEN, log_handler=None)
+    # Build the crew — one CrewBot per crew member with a configured token
+    crew: dict[str, CrewBot] = {}
+    skipped = []
+    for bot_id, character in CHARACTERS.items():
+        token = os.environ.get(token_env_for(bot_id), "").strip()
+        if not token:
+            skipped.append(bot_id)
+            continue
+        crew[bot_id] = CrewBot(bot_id, character, token)
+
+    if not crew and not HUB_TOKEN:
+        log.error("No bot tokens configured. Set DISCORD_TOKEN or DISCORD_TOKEN_<NAME>= for at least one bot.")
+        sys.exit(1)
+
+    log.info("Crew bots configured: %d  ·  Skipped (no token): %d", len(crew), len(skipped))
+    if skipped:
+        log.info("Skipped: %s", ", ".join(skipped))
+
+    # Shared aiohttp session (attached to each bot's client for command handlers)
+    session = aiohttp.ClientSession()
+    for cb in crew.values():
+        cb.client._aio_session = session
+
+    # Build the coroutine list
+    coros = [cb.start() for cb in crew.values()]
+    if HUB_TOKEN:
+        hub = HubBot(HUB_TOKEN)
+        coros.append(hub.start())
+    coros.append(drain_bus(crew))
+
+    write_status("STARTING", f"crew={len(crew)} hub={'on' if HUB_TOKEN else 'off'}")
+    try:
+        await asyncio.gather(*coros)
+    finally:
+        await session.close()
+
 
 if __name__ == "__main__":
-    main()
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("Interrupted.")
