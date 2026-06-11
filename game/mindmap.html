@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MEGA CREW — Ecosystem Map</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a12;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    touch-action: none;
+  }
+
+  canvas {
+    display: block;
+    position: absolute;
+    top: 0; left: 0;
+  }
+
+  #info {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(10,10,20,0.97);
+    border-top: 2px solid #333;
+    padding: 14px 18px 20px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    z-index: 100;
+  }
+  #info.visible { transform: translateY(0); }
+  #info-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  #info-items {
+    font-size: 13px;
+    color: #aaa;
+    line-height: 1.7;
+  }
+  #info-close {
+    position: absolute;
+    top: 10px; right: 14px;
+    font-size: 20px;
+    color: #555;
+    cursor: pointer;
+    line-height: 1;
+  }
+  #info-close:hover { color: #fff; }
+
+  #header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    text-align: center;
+    padding: 10px;
+    z-index: 50;
+    pointer-events: none;
+  }
+  #header h1 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #444;
+    text-transform: uppercase;
+  }
+
+  #journey {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(135deg, #0d0d1a, #12121f);
+    border-top: 1px solid #1e1e3a;
+    padding: 10px 12px 14px;
+    z-index: 10;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  #journey.hidden { display: none; }
+  .journey-label {
+    font-size: 9px;
+    color: #444;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .journey-steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .step {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    min-width: 58px;
+  }
+  .step-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .step-label {
+    font-size: 8px;
+    color: #666;
+    text-align: center;
+    line-height: 1.2;
+    max-width: 56px;
+    white-space: normal;
+  }
+  .step-arrow {
+    color: #333;
+    font-size: 12px;
+    padding: 0 2px;
+    margin-top: -10px;
+  }
+</style>
+</head>
+<body>
+
+<div id="header"><h1>MEGA CREW — Tap any node</h1></div>
+
+<canvas id="c"></canvas>
+
+<div id="journey">
+  <div class="journey-label">Player Journey</div>
+  <div class="journey-steps">
+    <div class="step">
+      <div class="step-icon" style="background:#1a1a2e;border-color:#e94560;">🃏</div>
+      <div class="step-label">Buy Pack</div>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step">
+      <div class="step-icon" style="background:#1a1a2e;border-color:#0f3460;">📷</div>
+      <div class="step-label">Scan QR</div>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step">
+      <div class="step-icon" style="background:#1a1a2e;border-color:#533483;">🎮</div>
+      <div class="step-label">Claim Character</div>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step">
+      <div class="step-icon" style="background:#1a1a2e;border-color:#e94560;">❓</div>
+      <div class="step-label">5 Questions</div>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step">
+      <div class="step-icon" style="background:#1a1a2e;border-color:#0f3460;">⚡</div>
+      <div class="step-label">Play Missions</div>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step">
+      <div class="step-icon" style="background:#1a1a2e;border-color:#533483;">🤖</div>
+      <div class="step-label">Answers → Pi 5</div>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step">
+      <div class="step-icon" style="background:#1a1a2e;border-color:#e94560;">✍️</div>
+      <div class="step-label">Gemini Writes Story</div>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step">
+      <div class="step-icon" style="background:#1a1a2e;border-color:#0f3460;">📺</div>
+      <div class="step-label">Cartoon Episode</div>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step">
+      <div class="step-icon" style="background:#1a1a2e;border-color:#533483;">🔄</div>
+      <div class="step-label">Crew Upgrades Sync</div>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="step">
+      <div class="step-icon" style="background:#1a1a2e;border-color:#e94560;">🏆</div>
+      <div class="step-label">You're In The Story</div>
+    </div>
+  </div>
+</div>
+
+<div id="info">
+  <span id="info-close" onclick="closeInfo()">✕</span>
+  <div id="info-title"></div>
+  <div id="info-items"></div>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+let W, H, cx, cy, scale;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  cx = W / 2;
+  cy = H / 2 - 30;
+  scale = Math.min(W, H) / 700;
+  draw();
+}
+
+// ── DATA ──────────────────────────────────────────────────────────────────────
+
+const CENTER = {
+  id: 'center',
+  label: 'MEGA\nCREW',
+  color: '#ffffff',
+  glow: '#8888ff',
+  r: 38,
+};
+
+const PILLARS = [
+  {
+    id: 'cards',
+    label: 'Physical\nCards',
+    color: '#e94560',
+    glow: '#e9456060',
+    icon: '🃏',
+    angle: -90,
+    items: ['22 Base Characters', '22 MEGA Variants', 'QR Codes per card', 'Power-up cards', 'Starter Code included'],
+    connects: ['digital', 'revenue'],
+  },
+  {
+    id: 'digital',
+    label: 'Digital\nCollection',
+    color: '#e9a000',
+    glow: '#e9a00060',
+    icon: '📱',
+    angle: -90 + 51.4,
+    items: ['Scan QR to claim', '5 onboarding questions', 'Starter code unlocks', 'Character profile page', 'theangel.com/claim'],
+    connects: ['cards', 'game'],
+  },
+  {
+    id: 'game',
+    label: 'Online\nGame',
+    color: '#00c896',
+    glow: '#00c89660',
+    icon: '🎮',
+    angle: -90 + 102.8,
+    items: ['Solo missions (22 types)', 'PvP challenges', 'Fusions & trading', 'Discord leaderboard', 'Mission data from Pi APIs'],
+    connects: ['digital', 'discord', 'database'],
+  },
+  {
+    id: 'books',
+    label: 'Books &\nCartoon',
+    color: '#a855f7',
+    glow: '#a855f760',
+    icon: '📺',
+    angle: -90 + 154.2,
+    items: ['Player answers feed stories', 'Gemini Strategist writes arcs', 'Weaviate stores story memory', 'Episodes release on Discord', 'Characters you own appear'],
+    connects: ['game', 'discord', 'database'],
+  },
+  {
+    id: 'discord',
+    label: 'Discord',
+    color: '#5865f2',
+    glow: '#5865f260',
+    icon: '💬',
+    angle: -90 + 205.7,
+    items: ['Angel Arcade server', 'Challenge alerts & missions', 'Leaderboards live', 'Story episode drops', 'Bot council announcements'],
+    connects: ['books', 'revenue', 'game'],
+  },
+  {
+    id: 'revenue',
+    label: 'Revenue',
+    color: '#f59e0b',
+    glow: '#f59e0b60',
+    icon: '💰',
+    angle: -90 + 257.1,
+    items: ['Ko-fi tips & memberships', 'GitHub Sponsors', 'Physical card sales', 'Premium pack drops', 'Unlock code bundles'],
+    connects: ['discord', 'cards'],
+  },
+  {
+    id: 'database',
+    label: 'Database\n& Pi 5',
+    color: '#06b6d4',
+    glow: '#06b6d460',
+    icon: '🖥️',
+    angle: -90 + 308.5,
+    items: ['SQLite — game state', 'Weaviate — story embeddings', 'Pi 5 + RAID (everything runs here)', 'Gemini Strategist (story engine)', 'Upgrades sync crew bots automatically'],
+    connects: ['game', 'books', 'cards'],
+  },
+];
+
+// ── LAYOUT ───────────────────────────────────────────────────────────────────
+
+function nodePos(pillar, radius) {
+  const a = (pillar.angle * Math.PI) / 180;
+  const r = radius * scale;
+  return { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r };
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+
+let active = null;
+let hovered = null;
+let animFrame = 0;
+
+// ── DRAW ─────────────────────────────────────────────────────────────────────
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+
+function drawNode(x, y, r, label, color, glow, icon, isCenter, lit, pulse) {
+  ctx.save();
+
+  // glow
+  if (lit || pulse) {
+    const gradient = ctx.createRadialGradient(x, y, r*0.5, x, y, r*2.2);
+    gradient.addColorStop(0, glow || color + '80');
+    gradient.addColorStop(1, 'transparent');
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(x, y, r*2.2, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // circle
+  const bg = ctx.createRadialGradient(x, y-r*0.3, r*0.1, x, y, r);
+  bg.addColorStop(0, isCenter ? '#1a1a2e' : '#12121f');
+  bg.addColorStop(1, '#08080f');
+  ctx.fillStyle = bg;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI*2);
+  ctx.fill();
+
+  // border
+  ctx.strokeStyle = lit ? color : (isCenter ? '#333' : '#1e1e3a');
+  ctx.lineWidth = lit ? 2.5 : 1.5;
+  ctx.stroke();
+
+  // icon (pillar nodes)
+  if (icon) {
+    ctx.font = `${r * 0.55}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(icon, x, y - r * 0.18);
+  }
+
+  // label
+  const lines = label.split('\n');
+  const fs = isCenter ? r * 0.28 : r * 0.26;
+  ctx.font = `700 ${fs}px 'Segoe UI', system-ui, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = lit ? color : (isCenter ? '#fff' : '#aaa');
+
+  if (icon) {
+    const lineH = fs * 1.3;
+    const startY = y + r * 0.32;
+    lines.forEach((line, i) => ctx.fillText(line, x, startY + i * lineH));
+  } else {
+    const lineH = fs * 1.4;
+    const startY = y - ((lines.length - 1) * lineH) / 2;
+    lines.forEach((line, i) => ctx.fillText(line, x, startY + i * lineH));
+  }
+
+  ctx.restore();
+}
+
+function drawEdge(x1, y1, x2, y2, color, lit) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.strokeStyle = lit ? color + 'cc' : '#1a1a2a';
+  ctx.lineWidth = lit ? 2 : 1;
+  if (!lit) ctx.setLineDash([4, 6]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+function draw() {
+  animFrame++;
+  ctx.clearRect(0, 0, W, H);
+
+  const R = 210; // pillar orbit radius
+  const nodeR = Math.min(42, W * 0.085) * scale;
+
+  // compute positions
+  const positions = {};
+  PILLARS.forEach(p => { positions[p.id] = nodePos(p, R); });
+  positions['center'] = { x: cx, y: cy };
+
+  // determine lit set
+  const litSet = new Set();
+  const litEdges = new Set();
+
+  if (active) {
+    litSet.add(active);
+    litSet.add('center');
+    const activePillar = PILLARS.find(p => p.id === active);
+    if (activePillar) {
+      activePillar.connects.forEach(cid => {
+        litSet.add(cid);
+        litEdges.add(`${active}-${cid}`);
+        litEdges.add(`${cid}-${active}`);
+      });
+      litEdges.add(`${active}-center`);
+      litEdges.add(`center-${active}`);
+    }
+  }
+
+  // draw edges — pillar to center
+  PILLARS.forEach(p => {
+    const pos = positions[p.id];
+    const lit = !active || litSet.has(p.id);
+    drawEdge(cx, cy, pos.x, pos.y, p.color, lit && !!active && litSet.has(p.id));
+  });
+
+  // draw cross-edges between connected pillars
+  PILLARS.forEach(p => {
+    p.connects.forEach(cid => {
+      const a = positions[p.id];
+      const b = positions[cid];
+      if (a && b) {
+        const edgeKey = [p.id, cid].sort().join('-');
+        const lit = litEdges.has(`${p.id}-${cid}`);
+        if (lit || !active) {
+          drawEdge(a.x, a.y, b.x, b.y, p.color, lit);
+        }
+      }
+    });
+  });
+
+  // draw pillar nodes
+  PILLARS.forEach(p => {
+    const pos = positions[p.id];
+    const lit = !active || litSet.has(p.id);
+    const pulse = p.id === 'database' && !active && (Math.sin(animFrame * 0.04) > 0.5);
+    const dimmed = active && !litSet.has(p.id);
+
+    ctx.save();
+    if (dimmed) ctx.globalAlpha = 0.3;
+    drawNode(pos.x, pos.y, nodeR, p.label, p.color, p.glow, p.icon, false, lit && !!active, pulse);
+    ctx.restore();
+  });
+
+  // draw center
+  const pulse = Math.sin(animFrame * 0.03) * 0.15 + 0.85;
+  drawNode(cx, cy, 38 * scale * pulse, CENTER.label, CENTER.color, CENTER.glow, null, true, !!active, false);
+
+  requestAnimationFrame(draw);
+}
+
+// ── INTERACTION ───────────────────────────────────────────────────────────────
+
+function getHit(x, y) {
+  const R = 210;
+  const nodeR = Math.min(42, W * 0.085) * scale;
+
+  // check center
+  const dc = Math.hypot(x - cx, y - cy);
+  if (dc < 44 * scale) return 'center';
+
+  // check pillars
+  for (const p of PILLARS) {
+    const pos = nodePos(p, R);
+    const d = Math.hypot(x - pos.x, y - pos.y);
+    if (d < nodeR + 8) return p.id;
+  }
+  return null;
+}
+
+function handleTap(x, y) {
+  const hit = getHit(x, y);
+  if (!hit || hit === 'center') {
+    active = null;
+    closeInfo();
+    return;
+  }
+  if (hit === active) {
+    active = null;
+    closeInfo();
+    return;
+  }
+  active = hit;
+  const pillar = PILLARS.find(p => p.id === hit);
+  showInfo(pillar);
+}
+
+function showInfo(pillar) {
+  const el = document.getElementById('info');
+  document.getElementById('info-title').style.color = pillar.color;
+  document.getElementById('info-title').textContent = pillar.icon + '  ' + pillar.label.replace('\n', ' ');
+  document.getElementById('info-items').innerHTML = pillar.items.map(i => `• ${i}`).join('<br>');
+  el.classList.add('visible');
+  document.getElementById('journey').classList.add('hidden');
+}
+
+function closeInfo() {
+  document.getElementById('info').classList.remove('visible');
+  document.getElementById('journey').classList.remove('hidden');
+  active = null;
+}
+
+// touch
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  const rect = canvas.getBoundingClientRect();
+  handleTap(t.clientX - rect.left, t.clientY - rect.top);
+}, { passive: false });
+
+// click
+canvas.addEventListener('click', e => {
+  handleTap(e.clientX, e.clientY);
+});
+
+window.addEventListener('resize', resize);
+resize();
+</script>
+</body>
+</html>
