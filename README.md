@@ -5,6 +5,7 @@
 ![social card](assets/social-card.jpg)
 
 [![Episodes](https://img.shields.io/badge/Chronicles-Live%20Episodes-00e5ff?style=for-the-badge)](https://thebardchat.github.io/mega-crew-stories/)
+[![Cards](https://img.shields.io/badge/Cards-View%20All%2044-76ff03?style=for-the-badge)](https://thebardchat.github.io/mega-crew-stories/cards.html)
 [![MEGA Discord](https://img.shields.io/badge/DISCORD-MEGA%20Crew-5865f2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BTZZrG4MtV)
 [![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?style=for-the-badge)](https://github.com/sponsors/thebardchat)
 
@@ -23,6 +24,7 @@ Built by Shane Brazelton + Claude (Anthropic).
 | What | Link |
 |------|------|
 | **MEGA Crew Stories** | [github.com/thebardchat/mega-crew-stories](https://github.com/thebardchat/mega-crew-stories) |
+| **Cards gallery (Pages)** | [cards.html](https://thebardchat.github.io/mega-crew-stories/cards.html) |
 | **MEGA Discord** | [discord.gg/BTZZrG4MtV](https://discord.gg/BTZZrG4MtV) |
 | **Community Discord** | [discord.gg/qST3UfFAr9](https://discord.gg/qST3UfFAr9) |
 | **Welcome thread** | [Discussions #3](https://github.com/thebardchat/mega-crew-stories/discussions/3) |
