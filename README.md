@@ -6,6 +6,8 @@
 
 [![Episodes](https://img.shields.io/badge/Chronicles-Live%20Episodes-00e5ff?style=for-the-badge)](https://thebardchat.github.io/mega-crew-stories/)
 [![Cards](https://img.shields.io/badge/Cards-View%20All%2044-76ff03?style=for-the-badge)](https://thebardchat.github.io/mega-crew-stories/cards.html)
+[![MEGA Discord](https://img.shields.io/badge/DISCORD-MEGA%20Crew-5865f2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BTZZrG4MtV)
+[![theangel.com](https://img.shields.io/badge/CARDS-theangel.com-ff66aa?style=for-the-badge)](https://theangel.com/card/torch)
 [![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?style=for-the-badge)](https://github.com/sponsors/thebardchat)
 
 A family of named AI bots running 24/7 on a Raspberry Pi 5. Each crew member has a distinct personality, a domain of expertise, and a persistent memory backed by Weaviate. Every night at 3:30 AM, they write their own episode.
@@ -15,6 +17,18 @@ Built by Shane Brazelton + Claude (Anthropic).
 **[Live Crew Page →](https://thebardchat.github.io/mega-crew)** · **[Read the Chronicles →](https://thebardchat.github.io/mega-crew-stories/)**
 
 ---
+
+## Join the crew
+
+| What | Link |
+|------|------|
+| **MEGA Discord** | [discord.gg/BTZZrG4MtV](https://discord.gg/BTZZrG4MtV) |
+| **Community Discord** | [discord.gg/qST3UfFAr9](https://discord.gg/qST3UfFAr9) |
+| **Bot cards** | [theangel.com/card/torch](https://theangel.com/card/torch) — swap the name |
+| **Chronicles** | [thebardchat.github.io/mega-crew-stories](https://thebardchat.github.io/mega-crew-stories/) |
+| **Cards gallery** | [cards.html](https://thebardchat.github.io/mega-crew-stories/cards.html) |
+
+New bots are landing. Soft welcome — jump Discord if you want to help guide them.
 
 ## The Crew
 
